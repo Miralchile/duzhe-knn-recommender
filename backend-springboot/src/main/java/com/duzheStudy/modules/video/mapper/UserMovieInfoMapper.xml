@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.duzheStudy.modules.video.mapper.UserMovieInfoMapper">
+
+
+    <!-- 查询单个记录 -->
+    <select id="selectById" resultType="com.duzheStudy.modules.video.domain.UserMovieInfo">
+        SELECT * FROM user_movie_info WHERE id = #{id}
+    </select>
+
+    <!-- 查询所有记录 -->
+    <select id="selectAll" resultType="com.duzheStudy.modules.video.domain.UserMovieInfo">
+        SELECT * FROM user_movie_info
+    </select>
+    <select id="getUserLast5Data" resultType="com.duzheStudy.modules.video.domain.UserMovieInfo">
+        SELECT id,deal_flag as dealFlag,movie_id as movieId,score FROM user_movie_info WHERE user_id = #{userId} ORDER BY id DESC LIMIT 5
+    </select>
+
+    <!-- 插入记录 -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_movie_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="movieId != null">movie_id,</if>
+            <if test="score != null">score,</if>
+            <if test="dealFlag != null">deal_flag,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="movieId != null">#{movieId},</if>
+            <if test="score != null">#{score},</if>
+            <if test="dealFlag != null">#{dealFlag},</if>
+        </trim>
+    </insert>
+
+    <!-- 更新记录 -->
+    <update id="update">
+        UPDATE user_movie_info
+        <set>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="movieId != null">movie_id = #{movieId},</if>
+            <if test="score != null">score = #{score},</if>
+            <if test="dealFlag != null">deal_flag = #{dealFlag},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    <update id="updateByIds">
+        UPDATE user_movie_info SET deal_flag = 1 WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <!-- 删除记录 -->
+    <delete id="deleteById">
+        DELETE FROM user_movie_info WHERE id = #{id}
+    </delete>
+
+
+</mapper>

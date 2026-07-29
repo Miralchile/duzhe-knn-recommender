@@ -1,0 +1,1 @@
+export const profix = 'http://localhost:3000'

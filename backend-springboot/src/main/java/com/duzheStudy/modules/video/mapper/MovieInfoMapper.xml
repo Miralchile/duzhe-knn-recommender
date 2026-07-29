@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.duzheStudy.modules.video.mapper.MovieInfoMapper">
+
+
+    <!-- 查询单个记录 -->
+    <select id="selectById" resultType="com.duzheStudy.modules.video.domain.MovieInfo">
+        SELECT * FROM movie_info WHERE id = #{id}
+    </select>
+
+    <!-- 查询所有记录 -->
+    <select id="selectAll" resultType="com.duzheStudy.modules.video.domain.MovieInfo">
+        SELECT * FROM movie_info
+    </select>
+    <select id="selectBatchIds" resultType="com.duzheStudy.modules.video.domain.MovieInfo">
+        SELECT * FROM movie_info WHERE id IN
+        <foreach collection="movieIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!-- 插入记录 -->
+    <insert id="insert">
+        INSERT INTO movie_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="title != null">title,</if>
+            <if test="genres != null">genres,</if>
+            <if test="url != null">url,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="title != null">#{title},</if>
+            <if test="genres != null">#{genres},</if>
+            <if test="url != null">#{url},</if>
+        </trim>
+    </insert>
+
+    <!-- 更新记录 -->
+    <update id="update">
+        UPDATE movie_info
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="genres != null">genres = #{genres},</if>
+            <if test="url != null">url = #{url},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除记录 -->
+    <delete id="deleteById">
+        DELETE FROM movie_info WHERE id = #{id}
+    </delete>
+
+    <!-- 批量插入 -->
+    <insert id="batchInsert" parameterType="list">
+        INSERT INTO movie_info (id, title, genres, url)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.id},
+            #{item.title},
+            #{item.genres},
+            #{item.url}
+            )
+        </foreach>
+    </insert>
+</mapper>

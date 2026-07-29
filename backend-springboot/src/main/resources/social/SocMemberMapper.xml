@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.reader.social.mapper.SocMemberMapper">
+    
+    <resultMap type="SocMember" id="SocMemberResult">
+        <result property="id"    column="id"    />
+        <result property="memberId"    column="member_id"    />
+        <result property="groupId"    column="group_id"    />
+        <result property="unread"    column="unread"    />
+        <result property="lastMessage"    column="last_message"    />
+        <result property="isHidden"    column="is_hidden"    />
+        <result property="isDeleted"    column="is_deleted"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectSocMemberVo">
+        select id, member_id, group_id, unread, last_message, is_hidden, is_deleted, create_time, update_time from soc_member
+    </sql>
+
+    <select id="selectSocMemberList" parameterType="SocMember" resultMap="SocMemberResult">
+        <include refid="selectSocMemberVo"/>
+        <where>  
+            <if test="memberId != null "> and member_id = #{memberId}</if>
+            <if test="groupId != null "> and group_id = #{groupId}</if>
+            <if test="unread != null "> and unread = #{unread}</if>
+            <if test="lastMessage != null  and lastMessage != ''"> and last_message = #{lastMessage}</if>
+            <if test="isHidden != null  and isHidden != ''"> and is_hidden = #{isHidden}</if>
+            <if test="isDeleted != null "> and is_deleted = #{isDeleted}</if>
+        </where>
+    </select>
+    
+    <select id="selectSocMemberById" parameterType="Long" resultMap="SocMemberResult">
+        <include refid="selectSocMemberVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertSocMember" parameterType="SocMember" useGeneratedKeys="true" keyProperty="id">
+        insert into soc_member
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="memberId != null">member_id,</if>
+            <if test="groupId != null">group_id,</if>
+            <if test="unread != null">unread,</if>
+            <if test="lastMessage != null">last_message,</if>
+            <if test="isHidden != null">is_hidden,</if>
+            <if test="isDeleted != null">is_deleted,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="memberId != null">#{memberId},</if>
+            <if test="groupId != null">#{groupId},</if>
+            <if test="unread != null">#{unread},</if>
+            <if test="lastMessage != null">#{lastMessage},</if>
+            <if test="isHidden != null">#{isHidden},</if>
+            <if test="isDeleted != null">#{isDeleted},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSocMember" parameterType="SocMember">
+        update soc_member
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="memberId != null">member_id = #{memberId},</if>
+            <if test="groupId != null">group_id = #{groupId},</if>
+            <if test="unread != null">unread = #{unread},</if>
+            <if test="lastMessage != null">last_message = #{lastMessage},</if>
+            <if test="isHidden != null">is_hidden = #{isHidden},</if>
+            <if test="isDeleted != null">is_deleted = #{isDeleted},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSocMemberById" parameterType="Long">
+        delete from soc_member where id = #{id}
+    </delete>
+
+    <delete id="deleteSocMemberByIds" parameterType="String">
+        delete from soc_member where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

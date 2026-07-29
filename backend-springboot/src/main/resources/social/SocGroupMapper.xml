@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.reader.social.mapper.SocGroupMapper">
+    
+    <resultMap type="SocGroup" id="SocGroupResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="avatar"    column="avatar"    />
+        <result property="introduction"    column="introduction"    />
+        <result property="ownerId"    column="owner_id"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="isDeleted"    column="is_deleted"    />
+    </resultMap>
+
+    <sql id="selectSocGroupVo">
+        select id, name, avatar, introduction, owner_id, create_time, update_time, is_deleted from soc_group
+    </sql>
+
+    <select id="selectSocGroupList" parameterType="SocGroup" resultMap="SocGroupResult">
+        <include refid="selectSocGroupVo"/>
+        <where>  
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="avatar != null  and avatar != ''"> and avatar = #{avatar}</if>
+            <if test="introduction != null  and introduction != ''"> and introduction = #{introduction}</if>
+            <if test="ownerId != null "> and owner_id = #{ownerId}</if>
+            <if test="isDeleted != null "> and is_deleted = #{isDeleted}</if>
+        </where>
+    </select>
+    
+    <select id="selectSocGroupById" parameterType="Long" resultMap="SocGroupResult">
+        <include refid="selectSocGroupVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertSocGroup" parameterType="SocGroup">
+        insert into soc_group
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="name != null">name,</if>
+            <if test="avatar != null">avatar,</if>
+            <if test="introduction != null">introduction,</if>
+            <if test="ownerId != null">owner_id,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="isDeleted != null">is_deleted,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="name != null">#{name},</if>
+            <if test="avatar != null">#{avatar},</if>
+            <if test="introduction != null">#{introduction},</if>
+            <if test="ownerId != null">#{ownerId},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="isDeleted != null">#{isDeleted},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSocGroup" parameterType="SocGroup">
+        update soc_group
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null">name = #{name},</if>
+            <if test="avatar != null">avatar = #{avatar},</if>
+            <if test="introduction != null">introduction = #{introduction},</if>
+            <if test="ownerId != null">owner_id = #{ownerId},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="isDeleted != null">is_deleted = #{isDeleted},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSocGroupById" parameterType="Long">
+        delete from soc_group where id = #{id}
+    </delete>
+
+    <delete id="deleteSocGroupByIds" parameterType="String">
+        delete from soc_group where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

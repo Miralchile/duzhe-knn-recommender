@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.duzheStudy.modules.worksDisplay.mapper.ChannelMapper">
+  <resultMap id="BaseResultMap" type="com.duzheStudy.modules.worksDisplay.domain.Channel">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="channel_name" jdbcType="VARCHAR" property="channelName" />
+    <result column="channel_order" jdbcType="INTEGER" property="channelOrder" />
+    <result column="category_id" jdbcType="BIGINT" property="categoryId" />
+    <result column="createdBy" jdbcType="TIMESTAMP" property="createdby" />
+    <result column="updatedBy" jdbcType="TIMESTAMP" property="updatedby" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, channel_name, channel_order, category_id, createdBy, updatedBy
+  </sql>
+
+  <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from channel
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+
+  <select id="selectByName" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select ch.*
+    from channel ch,category ca
+    where ch.category_id = ca.id and ca.category_name = #{name}
+    order by channel_order
+  </select>
+
+  <select id="selectByCategoryId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select *
+    from channel
+    where category_id = #{categoryId,jdbcType=BIGINT}
+    order by channel_order
+  </select>
+
+  <delete id="deleteById" parameterType="java.lang.Long">
+    delete from channel
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+
+  <insert id="insert" parameterType="com.duzheStudy.modules.worksDisplay.domain.Channel">
+    insert into channel (id, channel_name, channel_order, 
+      category_id, createdBy, updatedBy
+      )
+    values (#{id,jdbcType=BIGINT}, #{channelName,jdbcType=VARCHAR}, #{channelOrder,jdbcType=INTEGER}, 
+      #{categoryId,jdbcType=BIGINT}, now(), #{updatedby,jdbcType=TIMESTAMP}
+      )
+  </insert>
+
+  <update id="updateById" parameterType="com.duzheStudy.modules.worksDisplay.domain.Channel">
+    update channel
+    <set>
+      <if test="channelName != null">
+        channel_name = #{channelName,jdbcType=VARCHAR},
+      </if>
+      <if test="channelOrder != null">
+        channel_order = #{channelOrder,jdbcType=INTEGER},
+      </if>
+      <if test="categoryId != null">
+        category_id = #{categoryId,jdbcType=BIGINT},
+      </if>
+      <if test="createdby != null">
+        createdBy = #{createdby,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedby != null">
+        updatedBy = #{updatedby,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+</mapper>

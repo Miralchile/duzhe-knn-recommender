@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.duzheStudy.modules.worksDisplay.mapper.CategoryMapper">
+  <resultMap id="BaseResultMap" type="com.duzheStudy.modules.worksDisplay.domain.Category">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="category_name" jdbcType="VARCHAR" property="categoryName" />
+    <result column="category_order" jdbcType="INTEGER" property="categoryOrder" />
+    <result column="createdBy" jdbcType="TIMESTAMP" property="createdby" />
+    <result column="updatedBy" jdbcType="TIMESTAMP" property="updatedby" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, category_name, category_order, createdBy, updatedBy
+  </sql>
+
+  <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from category
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+
+  <select id="selectAll" resultMap="BaseResultMap">
+    select *
+    from category
+    order by category_order
+  </select>
+
+  <delete id="deleteById" parameterType="java.lang.Long">
+    delete from category
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+
+  <insert id="insert" parameterType="com.duzheStudy.modules.worksDisplay.domain.Category">
+    insert into category (id, category_name, category_order, 
+      createdBy, updatedBy)
+    values (#{id,jdbcType=BIGINT}, #{categoryName,jdbcType=VARCHAR}, #{categoryOrder,jdbcType=INTEGER}, 
+      now(), #{updatedby,jdbcType=TIMESTAMP})
+  </insert>
+
+  <update id="updateById" parameterType="com.duzheStudy.modules.worksDisplay.domain.Category">
+    update category
+    <set>
+      <if test="categoryName != null">
+        category_name = #{categoryName,jdbcType=VARCHAR},
+      </if>
+      <if test="categoryOrder != null">
+        category_order = #{categoryOrder,jdbcType=INTEGER},
+      </if>
+      <if test="createdby != null">
+        createdBy = #{createdby,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedby != null">
+        updatedBy = #{updatedby,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

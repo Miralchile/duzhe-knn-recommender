@@ -1,0 +1,124 @@
+package ${packageName}.service;
+
+import com.tokenview.common.utils.page.Pager;
+import ${packageName}.domain.${ClassName};
+import ${packageName}.domain.dto.${ClassName}DTO;
+
+import java.util.List;
+
+/**
+ * ${functionName}Service接口
+ * 
+ * @author ${author}
+ * @date ${datetime}
+ */
+public interface I${ClassName}Service 
+{
+    /////////////////////////////////
+    ///////       增加       ////////
+    /////////////////////////////////
+    /**
+     * 新增${functionName}
+     *
+     * @param ${className} ${functionName}
+     * @return 结果
+     */
+    public int insert${ClassName}(${ClassName} ${className});
+
+    /////////////////////////////////
+    ///////        刪除      ////////
+    /////////////////////////////////
+    /**
+     * 批量删除${functionName}
+     *
+     * @param ${pkColumn.javaField}s 需要删除的${functionName}ID
+     * @return 结果
+     */
+    public int delete${ClassName}ByIds(${pkColumn.javaType}[] ${pkColumn.javaField}s);
+
+    /**
+     * 删除${functionName}信息
+     *
+     * @param ${pkColumn.javaField} ${functionName}ID
+     * @return 结果
+     */
+    public int delete${ClassName}ById(${pkColumn.javaType} ${pkColumn.javaField});
+
+    /////////////////////////////////
+    ///////        修改      ////////
+    /////////////////////////////////
+    /**
+     * 修改${functionName}
+     *
+     * @param ${className} ${functionName}
+     * @return 结果
+     */
+    public int update${ClassName}(${ClassName} ${className});
+
+    /////////////////////////////////
+    ///////        查詢      ////////
+    /////////////////////////////////
+#foreach($column in $columns)
+#if($column.isRepeat)
+    /**
+     * 校验${column.columnComment}是否唯一
+     *
+     * @param ${pkColumn.javaField} ${pkColumn.columnComment}
+     * @param ${column.ColumnName} ${column.columnComment}
+     * @return 结果
+     */
+    public String check${ClassName}$stringUtils.convertToCamelCase(${column.ColumnName})Unique(${pkColumn.javaType} ${pkColumn.javaField},${column.javaType} ${column.ColumnName});
+
+#end
+#end
+
+    /**
+     * 查询${functionName}
+     * 
+     * @param ${pkColumn.javaField} ${functionName}ID
+     * @return ${functionName}
+     */
+    public ${ClassName}DTO find${ClassName}ById(${pkColumn.javaType} ${pkColumn.javaField});
+
+#if($table.crud)
+    /**
+     * 查询${functionName}列表
+     * 
+     * @param ${className} ${functionName}
+     * @return ${functionName}集合
+     */
+    public Pager<${ClassName}DTO> select${ClassName}Pager(${ClassName} ${className}, Integer page, Integer limit, String sort, String order);
+#elseif($table.tree)
+    /**
+     * 查询${functionName}所有列表
+     *
+     * @param ${className} ${functionName}
+     * @return ${functionName}集合
+     */
+    public List<${ClassName}DTO> select${ClassName}List(${ClassName} ${className});
+
+    /**
+     * 构建前端所需要下拉树结构
+     *
+     * @param ${className} 栏目分类列表
+     * @return 下拉树结构列表
+     */
+    public List<TreeSelect> build${ClassName}TreeSelect(List<${ClassName}DTO> ${className});
+
+    /**
+     * 构建前端所需要树结构
+     *
+     * @param ${className} 栏目分类列表
+     * @return 树结构列表
+     */
+    public List<${ClassName}DTO> build${ClassName}Tree(List<${ClassName}DTO> ${className});
+#end
+
+    /**
+     * 查询需要导出的${functionName}列表
+     *
+     * @param ${className} ${functionName}
+     * @return ${functionName}集合
+     */
+    public List<${ClassName}DTO> export${ClassName}List(${ClassName} ${className});
+}

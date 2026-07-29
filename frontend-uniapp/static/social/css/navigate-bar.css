@@ -1,0 +1,82 @@
+.navigate-bar{
+	position: fixed;
+	z-index: 10;
+	width: 100%;
+}
+.navigate-bar-main{
+	width: 100%;
+	height: 45px;
+	background-color: #42B983;
+	display: flex;
+
+}
+.navigate-bar-app{
+	display: block;
+	/* #ifdef APP */
+		height: 30px;
+	/* #endif */
+	/* #ifdef H5 */
+		height: 0;
+	/* #endif */
+	width: 100%;
+	position: relative;
+	background-color: #42B983;
+}
+.navigate-bar-left-avatar-image{
+	width: 35px;height: 35px;border-radius: 50%;
+	margin-left: 10rpx;
+}
+.navigate-bar-left-avatar{
+	margin-bottom: 5rpx;
+	position: relative;
+}
+.navigate-bar-left-avatar-red-dot{
+	position: absolute;
+	background-color: red;
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	left: 35px;
+	bottom: 5px;
+}
+.navigate-bar-left-avatar-green-dot{
+	position: absolute;
+	background-color: lawngreen;
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	left: 35px;
+	bottom: 5px;
+}
+.navigate-bar-left{
+	width: 20%;
+	height: 100%;
+	padding: 4px;
+}
+.navigate-bar-middle{
+	width: 60%;
+	height: 100%;
+	color: white;
+	text-align: center;
+	line-height: 45px;
+}
+.navigate-bar-right{
+	width: 20%;
+	height: 100%;
+	position: relative;
+}
+.navigate-bar-right-icon{
+	position: absolute;
+	width: 40rpx;
+	height: 40rpx;
+	right: 35rpx;
+	bottom: 25rpx;
+}
+.navigate-bar-space{
+	/* #ifdef APP */
+		height: 75px;
+	/* #endif */
+	/* #ifdef H5 */
+		height: 45px;
+	/* #endif */
+}

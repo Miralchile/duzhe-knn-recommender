@@ -1,0 +1,168 @@
+package ${packageName}.controller;
+
+
+import com.tokenview.common.constant.UserConstants;
+import com.tokenview.common.utils.page.Pager;
+import com.tokenview.common.validator.Order;
+import com.tokenview.common.validator.Sort;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import com.tokenview.framework.aspectj.lang.annotation.Log;
+import com.tokenview.framework.aspectj.lang.enums.BusinessType;
+import ${packageName}.domain.${ClassName};
+import ${packageName}.domain.dto.${ClassName}DTO;
+import ${packageName}.service.I${ClassName}Service;
+import com.tokenview.framework.web.controller.BaseController;
+import com.tokenview.framework.web.domain.AjaxResult;
+import com.tokenview.common.utils.poi.ExcelUtil;
+#if($table.crud)
+import com.tokenview.framework.web.page.TableDataInfo;
+#elseif($table.tree)
+#end
+
+import java.util.List;
+
+/**
+ * ${functionName}Controller
+ * 
+ * @author ${author}
+ * @date ${datetime}
+ */
+@RestController
+@RequestMapping("/system/${moduleName}/${businessName}")
+public class ${ClassName}AdminController extends BaseController
+{
+    @Autowired
+    private I${ClassName}Service ${className}Service;
+    /////////////////////////////////
+    ///////       增加       ////////
+    /////////////////////////////////
+
+    /**
+     * 新增${functionName}
+     */
+    @PreAuthorize("@ss.hasPermi('${permissionPrefix}:add')")
+    @Log(title = "${functionName}", businessType = BusinessType.INSERT)
+    @PostMapping
+    public AjaxResult add(@RequestBody ${ClassName} ${className})
+    {
+#foreach($column in $columns)
+#if($column.isRepeat)
+        if (UserConstants.NOT_UNIQUE.equals(${className}Service.check${ClassName}$stringUtils.convertToCamelCase(${column.ColumnName})Unique(${className}.get$stringUtils.convertToCamelCase(${pkColumn.javaField})(),${className}.get$stringUtils.convertToCamelCase(${column.ColumnName})())))
+        {
+            return AjaxResult.error("新增${functionName}'" + ${className}.get$stringUtils.convertToCamelCase(${column.ColumnName})() + "'失败，${column.columnComment}已存在");
+        }
+#end
+#end
+        return toAjax(${className}Service.insert${ClassName}(${className}));
+    }
+
+    /////////////////////////////////
+    ///////        刪除      ////////
+    /////////////////////////////////
+    /**
+     * 删除${functionName}
+     */
+    @PreAuthorize("@ss.hasPermi('${permissionPrefix}:remove')")
+    @Log(title = "${functionName}", businessType = BusinessType.DELETE)
+    @DeleteMapping("/{${pkColumn.javaField}s}")
+    public AjaxResult remove(@PathVariable ${pkColumn.javaType}[] ${pkColumn.javaField}s)
+    {
+        return toAjax(${className}Service.delete${ClassName}ByIds(${pkColumn.javaField}s));
+    }
+
+
+    /////////////////////////////////
+    ///////        修改      ////////
+    /////////////////////////////////
+    /**
+     * 修改${functionName}
+     */
+    @PreAuthorize("@ss.hasPermi('${permissionPrefix}:edit')")
+    @Log(title = "${functionName}", businessType = BusinessType.UPDATE)
+    @PutMapping
+    public AjaxResult edit(@RequestBody ${ClassName} ${className})
+    {
+#foreach($column in $columns)
+#if($column.isRepeat)
+    if (UserConstants.NOT_UNIQUE.equals(${className}Service.check${ClassName}$stringUtils.convertToCamelCase(${column.ColumnName})Unique(${className}.get$stringUtils.convertToCamelCase(${pkColumn.javaField})(),${className}.get$stringUtils.convertToCamelCase(${column.ColumnName})())))
+        {
+            return AjaxResult.error("新增${functionName}'" + ${className}.get$stringUtils.convertToCamelCase(${column.ColumnName})() + "'失败，${column.columnComment}已存在");
+        }
+#end
+#end
+        return toAjax(${className}Service.update${ClassName}(${className}));
+    }
+
+
+    /////////////////////////////////
+    ///////        查詢      ////////
+    /////////////////////////////////
+    /**
+     * 查询${functionName}列表
+     */
+    @PreAuthorize("@ss.hasPermi('${permissionPrefix}:list')")
+    @GetMapping("/list")
+#if($table.crud)
+    public TableDataInfo list(${ClassName} ${className},
+        @RequestParam(defaultValue = "1") Integer pageNum,
+        @RequestParam(defaultValue = "10") Integer pageSize,
+        @Sort @RequestParam(defaultValue = "id") String sort,
+        @Order @RequestParam(defaultValue = "desc") String order)
+    {
+        Pager<${ClassName}DTO> pager = ${className}Service.select${ClassName}Pager(${className}, pageNum, pageSize, sort, order);
+        return getDataTable(pager.getList(),pager.getTotal());
+    }
+#elseif($table.tree)
+    public AjaxResult list(${ClassName} ${className})
+    {
+        List<${ClassName}DTO> list = ${className}Service.select${ClassName}List(${className});
+        return AjaxResult.success(list);
+    }
+#end
+
+    /**
+     * 导出${functionName}列表
+     */
+    @PreAuthorize("@ss.hasPermi('${permissionPrefix}:export')")
+    @Log(title = "${functionName}", businessType = BusinessType.EXPORT)
+    @GetMapping("/export")
+    public AjaxResult export(${ClassName} ${className})
+    {
+        List<${ClassName}DTO> ${className}List = ${className}Service.export${ClassName}List(${className});
+        ExcelUtil<${ClassName}DTO> util = new ExcelUtil<${ClassName}DTO>(${ClassName}DTO.class);
+        return util.exportExcel(${className}List, "${businessName}");
+    }
+
+    /**
+     * 获取${functionName}详细信息
+     */
+    @PreAuthorize("@ss.hasPermi('${permissionPrefix}:query')")
+    @GetMapping(value = "/{${pkColumn.javaField}}")
+    public AjaxResult getInfo(@PathVariable("${pkColumn.javaField}") ${pkColumn.javaType} ${pkColumn.javaField})
+    {
+        return AjaxResult.success(${className}Service.find${ClassName}ById(${pkColumn.javaField}));
+    }
+
+#if($table.tree)
+    /**
+     * 获取${functionName}下拉树列表
+     */
+    @PreAuthorize("@ss.hasPermi('${permissionPrefix}:query')")
+    @GetMapping("/treeselect")
+    public AjaxResult treeselect(${ClassName} ${className})
+    {
+        List<${ClassName}> columns = ${className}Service.select${ClassName}List(${className});
+        return AjaxResult.success(${className}Service.build${ClassName}TreeSelect(columns));
+    }
+#end
+}

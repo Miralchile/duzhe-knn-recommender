@@ -1,0 +1,61 @@
+package ${packageName}.domain;
+#foreach ($import in $importList)
+import ${import};
+#end
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import com.tokenview.framework.aspectj.lang.annotation.Excel;
+#if($table.tree)
+#end
+import lombok.Data;
+
+import java.io.Serializable;
+
+/**
+ * ${functionName}数据传输对象 ${tableName}
+ * 
+ * @author ${author}
+ * @date ${datetime}
+ */
+#if($table.crud)
+#set($Entity="BaseEntity")
+#elseif($table.tree)
+#set($Entity="TreeEntity")
+#end
+@Data
+@JsonInclude(value = JsonInclude.Include.NON_EMPTY)
+public class ${ClassName}DTO implements Serializable
+{
+    private static final long serialVersionUID = 1L;
+
+#foreach ($column in $columns)
+#if($column.list || $column.javaField == $pkColumn.javaField)
+#if(!$table.isSuperColumn($column.javaField))
+    /** $column.columnComment */
+#set($parentheseIndex=$column.columnComment.indexOf("（"))
+#if($parentheseIndex != -1)
+#set($comment=$column.columnComment.substring(0, $parentheseIndex))
+#else
+#set($comment=$column.columnComment)
+#end
+#if($parentheseIndex != -1)
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+#elseif($column.javaType == 'Date')
+    @Excel(name = "${comment}", width = 30, dateFormat = "yyyy-MM-dd")
+#else
+    @Excel(name = "${comment}")
+#end
+#if($column.javaType == 'Long')
+    @JsonSerialize(using = ToStringSerializer.class)
+#end
+    private $column.javaType $column.javaField;
+#end
+#end
+#end
+
+#if($table.tree)
+    /** 子类目 */
+    private List<DreamColumnDTO> children = new ArrayList<DreamColumnDTO>();
+#end
+}

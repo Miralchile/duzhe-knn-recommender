@@ -1,0 +1,20 @@
+const getters = {
+  onlineArray: state => state.onlineArray,
+  lastUpdateSession: state => state.lastUpdateSession,
+  personMessage: state => state.personMessage,
+  groupMessage: state => state.groupMessage,
+  noticeList: state => state.noticeList,
+  totalUnread: state => state.totalUnread,
+  groupList: state => state.groupList,
+  sessionList: state => state.sessionList,
+  friendListShow: state => state.friendListShow,
+  friendList: state => state.friendList,
+  systemConfig: state => state.systemConfig,
+  isSocketOpen: state => state.isSocketOpen,
+  title: state => state.title,
+  messageList: state => state.messageList,
+  loginUserInfo: state => state.loginUserInfo,
+  chattingUserInfo: state => state.chattingUserInfo,
+  chattingGroupInfo: state => state.chattingGroupInfo,
+}
+export default getters

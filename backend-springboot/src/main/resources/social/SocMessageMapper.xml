@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.reader.social.mapper.SocMessageMapper">
+    
+    <resultMap type="SocMessage" id="SocMessageResult">
+        <result property="id"    column="id"    />
+        <result property="sessionId"    column="session_id"    />
+        <result property="senderId"    column="sender_id"    />
+        <result property="receiverId"    column="receiver_id"    />
+        <result property="sendTime"    column="send_time"    />
+        <result property="content"    column="content"    />
+        <result property="messageType"    column="message_type"    />
+        <result property="isWithdrawn"    column="is_withdrawn"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="isDeleted"    column="is_deleted"    />
+    </resultMap>
+
+    <sql id="selectSocMessageVo">
+        select id, session_id, sender_id, receiver_id, send_time, content, message_type, is_withdrawn, create_time, update_time, is_deleted from soc_message
+    </sql>
+
+    <select id="selectSocMessageList" parameterType="SocMessage" resultMap="SocMessageResult">
+        <include refid="selectSocMessageVo"/>
+        <where>  
+            <if test="sessionId != null "> and session_id = #{sessionId}</if>
+            <if test="senderId != null "> and sender_id = #{senderId}</if>
+            <if test="receiverId != null "> and receiver_id = #{receiverId}</if>
+            <if test="sendTime != null  and sendTime != ''"> and send_time = #{sendTime}</if>
+            <if test="content != null  and content != ''"> and content = #{content}</if>
+            <if test="messageType != null  and messageType != ''"> and message_type = #{messageType}</if>
+            <if test="isWithdrawn != null "> and is_withdrawn = #{isWithdrawn}</if>
+            <if test="isDeleted != null "> and is_deleted = #{isDeleted}</if>
+        </where>
+    </select>
+    
+    <select id="selectSocMessageById" parameterType="Long" resultMap="SocMessageResult">
+        <include refid="selectSocMessageVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertSocMessage" parameterType="SocMessage">
+        insert into soc_message
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="sessionId != null">session_id,</if>
+            <if test="senderId != null">sender_id,</if>
+            <if test="receiverId != null">receiver_id,</if>
+            <if test="sendTime != null">send_time,</if>
+            <if test="content != null">content,</if>
+            <if test="messageType != null">message_type,</if>
+            <if test="isWithdrawn != null">is_withdrawn,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="isDeleted != null">is_deleted,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="sessionId != null">#{sessionId},</if>
+            <if test="senderId != null">#{senderId},</if>
+            <if test="receiverId != null">#{receiverId},</if>
+            <if test="sendTime != null">#{sendTime},</if>
+            <if test="content != null">#{content},</if>
+            <if test="messageType != null">#{messageType},</if>
+            <if test="isWithdrawn != null">#{isWithdrawn},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="isDeleted != null">#{isDeleted},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSocMessage" parameterType="SocMessage">
+        update soc_message
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="sessionId != null">session_id = #{sessionId},</if>
+            <if test="senderId != null">sender_id = #{senderId},</if>
+            <if test="receiverId != null">receiver_id = #{receiverId},</if>
+            <if test="sendTime != null">send_time = #{sendTime},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="messageType != null">message_type = #{messageType},</if>
+            <if test="isWithdrawn != null">is_withdrawn = #{isWithdrawn},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="isDeleted != null">is_deleted = #{isDeleted},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSocMessageById" parameterType="Long">
+        delete from soc_message where id = #{id}
+    </delete>
+
+    <delete id="deleteSocMessageByIds" parameterType="String">
+        delete from soc_message where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

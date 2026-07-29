@@ -1,0 +1,35 @@
+package ${packageName}.domain;
+
+#set ($baseColumn=["searchValue","createBy","createTime","updateBy","updateTime","remark","dataScope","beginTime","endTime","params"])
+#foreach ($import in $importList)
+import ${import};
+#end
+#if($table.crud)
+#end
+import lombok.Data;
+
+/**
+ * ${functionName}对象 ${tableName}
+ * 
+ * @author ${author}
+ * @date ${datetime}
+ */
+#if($table.crud)
+#set($Entity="BaseEntity")
+#elseif($table.tree)
+#set($Entity="TreeEntity")
+#end
+@Data
+public class ${ClassName} extends ${Entity}
+{
+    private static final long serialVersionUID = 1L;
+
+#foreach ($column in $columns)
+#if (!$baseColumn.contains($column.javaField))
+#if(!$table.isSuperColumn($column.javaField))
+    /** $column.columnComment */
+    private $column.javaType $column.javaField;
+#end
+#end
+#end
+}

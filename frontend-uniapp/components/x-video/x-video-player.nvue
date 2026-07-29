@@ -1,0 +1,523 @@
+<template>
+	<!-- <div class="video-wrap" :style="{ width: `${width}`, height: `${height}` }" @touchend="handleControls"> -->
+	<div class="video-wrap" :style="{ width: `${width}`, height: `${height}` }">
+		<!-- video player -->
+		<video style="object-fit: contain; width: auto; height: 100%;" class="video-player" :id="videoId" :custom-cache="false"
+			:style="{ width: `${width}`, height: `${height}`}" :controls="showContros" :src="src" :enable-play-gesture="true"
+			:show-center-play-btn="false" :autoplay="autoplay" :muted="isMute" :poster="poster" @play="videoPlay"
+			@pause="videoPause" @ended="videoEnded" @timeupdate="videoTimeUp" @loadedmetadata="videoLoaded" :enable-progress-gesture="false"
+			@waiting="videoWaiting" @error="videoError" @fullscreenchange="onFullScreen" :danmu-list="this.danmuList" enable-danmu>
+			<!-- <cover-view class="abs-center" :style="{ width: `${width}`, height: `${height}` }"> -->
+				<!-- 中心播放按钮 -->
+				<!-- <image src="../../static/play-btn.png" mode="" class="play-btn" v-if="!isVideoPlay && !showLoading"
+					@click="videoPlayCenter"></image> -->
+				<!--  加载中 nvue不支持animation -->
+				<!-- <div class="video-loading" v-if="showLoading">
+					<cover-image src="../../static/loading.png" mode="" class="loading-btn"></cover-image>
+				</div> -->
+			<!-- </cover-view> -->
+			
+			<cover-view v-if="!showContros" style="display: flex;justify-content: center;align-items: center;position: absolute;z-index: 999;">
+				<div style="display: flex;width: 750rpx;background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), rgba(212, 212, 212, 0.0));
+		             height: 60rpx;position: absolute;top: 0;flex-direction: row;align-items: center;padding: 0 10px;">
+					 <view style="display: flex;flex-flow: row;" @click="handleBack">
+						 <u-icon name="arrow-left" :bold="true" color="#ffffff";
+						 style="margin-left: 10rpx;margin-top: 10rpx;"></u-icon> 
+						 <text style="color: #ffffff;margin-left: 20rpx;margin-top: 10rpx;font-size: 30rpx;">视频</text>
+					 </view>
+				</div>
+			</cover-view>
+
+			<!-- 控制条 -->
+			<cover-view class="controls-bar" v-if="!showContros">
+				<!-- 播放 -->
+				<div class="play-box" @click="videoPlayClick">
+					<image src="../../static/pause.png" mode="" class="play-icon" v-if="isVideoPlay"></image>
+					<image src="../../static/play.png" mode="" class="play-icon" v-else></image>
+				</div>
+				<!-- 声音 -->
+				<div class="mute-box" @click="videoMuteClick">
+					<image src="../../static/sound.png" mode="" class="mute-icon" v-if="!isMute"></image>
+					<image src="../../static/mute.png" mode="" class="mute-icon" v-else></image>
+				</div>
+				<!-- 进度 -->
+				<div class="progress" v-if="!showContros">
+					<div class="currtime-box">
+						<text class="currtime">{{ currentTimeStr }}</text>
+					</div>
+
+					<div class="slider-container">
+						<!-- {{sliderValue}} -->
+						<slider @change="sliderChange" @changing="sliderChanging" :step="step" :value="sliderValue"
+							backgroundColor="#9f9587" activeColor="#d6d2cc" block-color="#FFFFFF" block-size="12" />
+					</div>
+					<div class="durationTime-box">
+						<text class="durationTime">{{ durationTimeStr }}</text>
+					</div>
+				</div>
+				<!-- 倍速 -->
+				<div class="play-rate" @click="videoPlayRate" v-if="showRate">
+					<text class="play-rate-text">{{ playbackRate }}x</text>
+				</div>
+				<!-- 全屏 -->
+				<div class="play-full" v-if="!showContros" @click="videoFull">
+					<image src="../../static/fullscreen.png" mode="" class="play-icon" @click="videoFull"></image>
+				</div>
+			</cover-view>
+
+			<!-- 倍速菜单 -->
+			<cover-view class="play-rate-menu" :style="{ height: `${height}` }" v-if="showRateMenu">
+				<div v-for="item in playbackRates" :key="item" class="play-rate-item" @click="changePlayRate(item)">
+					<text :class="[{ activeRate: playbackRate === item }, 'play-rate-item-text']">{{ item }}x</text>
+				</div>
+			</cover-view>
+		</video>
+	</div>
+</template>
+
+<script>
+	export default {
+		name: 'x-video',
+		props: {
+			// 视频地址
+			videoId: {
+				type: String,
+				default: 'myVideo'
+			},
+			// 视频地址
+			src: {
+				type: String,
+			},
+			// 自动播放
+			autoplay: {
+				type: Boolean,
+				default: true,
+			},
+			// 封面
+			poster: {
+				type: String,
+			},
+			// 步长，表示占比，取值必须大于0且为整数
+			step: {
+				type: Number,
+				default: 1,
+			},
+			// 初始播放进度，表示占比
+			progress: {
+				type: Number,
+			},
+			// 视频宽度
+			width: {
+				type: String,
+				default: '100%',
+			},
+			// 视频高度
+			height: {
+				type: String,
+				default: '484rpx',
+			},
+			// 播放错误提示
+			errorTip: {
+				type: String,
+				default: '播放错误',
+			},
+			// 是否展示倍速
+			showRate: {
+				type: Boolean,
+				default: true,
+			},
+			// 播放速率
+			playbackRates: {
+				type: Array,
+				default: () => [0.8, 1, 1.25, 1.5, 2],
+			},
+			//弹幕
+			danmuList: {
+				type: Array,
+				default: () => []
+			}
+		},
+		data() {
+			return {
+				controls: true, //显示播放控件
+				isVideoPlay: false, // 是否正在播放
+				isMute: false, // 是否静音
+				isVideoEnd: false, // 是否播放结束
+				showPoster: true, // 是否显示视屏封面
+				showLoading: false, // 加载中
+				durationTime: 0, //总播放时间 时间戳
+				currentTime: 0, //当前播放时间 时间戳
+				durationTimeStr: '00:00', //总播放时间 字符串 计算后
+				currentTimeStr: '00:00', //当前播放时间 字符串 计算后
+				sliderValue: 0, //进度条的值 百分比
+				isSeeked: true, //防止进度条拖拽失效
+				playbackRate: 1, // 初始播放速率
+				showRateMenu: false, //显示播放速率
+				initialTime: 0, //初始播放时间
+				showContros: false, //是否横屏-小程序
+			};
+		},
+		mounted() {
+			this.videoPlayer = uni.createVideoContext(this.videoId, this);
+		},
+		onHide() {
+			clearTimeout(this.timer);
+		},
+		methods: {
+			
+			handleBack(){
+				uni.navigateBack({
+				  delta: 1 
+				})
+				// uni.navigateTo({
+				// 	url:"/pages/index/index"
+				// })
+			},
+			
+			// 自动隐藏控制条
+			hideControls() {
+				this.timer = setTimeout(() => {
+					this.controls = false;
+				}, 5000);
+			},
+			
+			// 点击显示/隐藏控制条
+			handleControls() {
+				this.controls = !this.controls;
+			},
+			
+			// 根据秒获取时间
+			formatSeconds(second) {
+				second = Math.round(second);
+				var hh = parseInt(second / 3600);
+				var mm = parseInt((second - hh * 3600) / 60);
+				if (mm < 10) mm = '0' + mm;
+				var ss = parseInt((second - hh * 3600) % 60);
+				if (ss < 10) ss = '0' + ss;
+				if (hh < 10) hh = hh == 0 ? '' : `0${hh}:`;
+				var length = hh + mm + ':' + ss;
+				if (second > 0) {
+					return length;
+				} else {
+					return '00:00';
+				}
+			},
+			// 缓冲
+			videoWaiting(e) {
+				// 没有缓冲结束事件，所以在不播放的情况触发loading
+				if (!this.isVideoPlay) this.showLoading = true;
+			},
+			// 视频信息加载完成
+			videoLoaded(e) {
+			},
+			// 播放进度更新,触发频率 250ms 一次
+			videoTimeUp(e) {
+				let that = this;
+				if (this.durationTime <= 1) {
+					this.durationTime = e.detail.duration;
+					this.durationTimeStr = this.formatSeconds(this.durationTime);
+					this.initialTime = this.progress * this.durationTime;
+					this.sliderValue = this.progress * 100;
+					this.videoPlayer.seek(this.initialTime);
+					this.currentTimeStr = this.formatSeconds(this.initialTime);
+					// this.controls = true;
+					this.showLoading = false;
+					this.$emit('loadeddata', e.detail.duration);
+				} else {
+
+					let sliderValue = Math.round(
+						(e.detail.currentTime / this.durationTime) * 100
+					);
+					// if (this.isSeeked) {
+					//判断拖拽完成后才触发更新，避免拖拽失效 
+					// if (sliderValue % this.step === 0)
+					// 比例值能被步进值整除
+					this.sliderValue = sliderValue;
+					// }
+					that.currentTimeStr = this.formatSeconds(e.detail.currentTime);
+					that.$emit('timeupdate', e.detail.currentTime);
+
+				}
+			},
+			//正在拖动slider
+			sliderChanging(e) {
+				this.isSeeked = false; // 拖拽过程中，不允许更新进度条
+				this.showLoading = true;
+				this.videoPlayer.pause();
+				this.$emit('seeking');
+			},
+			// 拖动slider完成后
+			sliderChange(e) {
+				this.sliderValue = e.detail.value;
+				let currentTime = (this.sliderValue / 100) * this.durationTime;
+				this.showLoading = false;
+				this.isSeeked = true; // 完成拖动后允许更新滚动条
+				this.videoPlayer.seek(currentTime);
+				this.currentTimeStr = this.formatSeconds(currentTime);
+				if (this.sliderValue < 100) {
+					this.videoPlayer.play();
+				} else {
+					this.videoPlayer.pause();
+					this.videoEnded();
+				}
+				this.hideControls();
+				this.$emit('seeked', this.sliderValue);
+			},
+
+			// 点击中心播放
+			videoPlayCenter() {
+				this.videoPlayer.play();
+				this.$emit('play');
+			},
+			// 点击左下角播放/暂停,会触发原始播放/暂停事件,分开写，防止重复触发
+			videoPlayClick() {
+				if (this.isVideoPlay) {
+					this.videoPlayer.pause();
+				} else {
+					this.videoPlayer.play();
+					this.$emit('play');
+				}
+			},
+			// 原始播放
+			videoPlay() {
+				if (this.pauseTimer) {
+					clearTimeout(this.pauseTimer);
+				}
+				this.isVideoPlay = true;
+				this.isVideoEnd = false;
+				this.showLoading = false;
+				this.hideControls();
+			},
+			// 原始暂停
+			videoPause() {
+				// 处理播放结束和拖动会先触发暂停的问题
+				this.pauseTimer = setTimeout(() => {
+					if (this.isVideoEnd) return;
+					if (!this.isSeeked) return;
+					this.isVideoPlay = false;
+					this.$emit('pause');
+				}, 100);
+			},
+			// 静音
+			videoMuteClick() {
+				this.isMute = !this.isMute;
+			},
+			// 播放结束
+			videoEnded() {
+				// 重置状态
+				this.isVideoPlay = false;
+				this.showPoster = true;
+				this.isVideoEnd = true;
+				this.$emit('ended');
+			},
+			// 播放错误
+			videoError(e) {
+				// uni.showToast({
+				// 	title: this.errorTip,
+				// 	icon: 'none',
+				// });
+				this.$emit('error');
+			},
+			// 显示倍速
+			videoPlayRate() {
+				this.showRateMenu = true;
+			},
+			// 点击倍速
+			changePlayRate(rate) {
+				this.playbackRate = rate;
+				this.videoPlayer.playbackRate(rate);
+				this.showRateMenu = false;
+				this.hideControls();
+			},
+			// 点击全屏
+			videoFull() {
+				this.videoPlayer.requestFullScreen();
+			},
+			// 监听原生全屏事件
+			onFullScreen({
+				detail
+			}) {
+				if (detail.direction === "horizontal") {
+					this.showContros = true
+				} else {
+					this.showContros = false
+				}
+			}
+		}
+	};
+</script>
+
+<style scoped>
+	.coverview {
+		background-color: #000
+	}
+
+	.text {
+		color: #fff
+	}
+</style>
+
+<style lang="scss" scoped>
+	
+	.controls-view-top {
+		display: flex;
+		width: 750rpx;
+		background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0));
+		height: 50rpx;
+	
+		position: absolute;
+		top: 0;
+		flex-direction: row;
+		align-items: center;
+		padding: 0 10px;
+	
+	}
+	
+	.show {
+		opacity: 1 !important;
+	}
+
+	.hide {
+		opacity: 0 !important;
+		// pointer-events: none;
+	}
+
+	.abs-center {
+		justify-content: center;
+		align-items: center;
+		display: flex;
+		// position: absolute;
+		// top: 50%;
+		// left: 50%;
+		// transform: translate(-50%, -50%);
+	}
+
+	.video-wrap {
+		position: relative;
+
+		.play-btn {
+			width: 120rpx;
+			height: 120rpx;
+		}
+
+		@keyframes run {
+			from {
+				transform: rotate(0deg);
+			}
+
+			to {
+				transform: rotate(360deg);
+			}
+		}
+
+		.loading-btn {
+			width: 120rpx;
+			height: 120rpx;
+			// animation: run 0.8s linear 0s infinite;
+		}
+
+		.controls-bar {
+			width: 100%;
+			width: 750rpx;
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			z-index: 9;
+			flex-direction: row;
+			align-items: center;
+			opacity: 1;
+			transition: opacity 1s;
+			height: 84rpx;
+			// display: webkit-box;
+			// display: moz-box;
+			// display: webkit-flex;
+			// display: ms-flexbox;
+			// display: flex;
+			// flex-shrink: 0;
+			background-image: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0));
+
+			.play-box,
+			.mute-box,
+			.play-full {
+				width: 64rpx;
+				height: 84rpx;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+
+			.mute-icon {
+				width: 40rpx;
+				height: 40rpx;
+			}
+
+			.play-icon {
+				width: 34rpx;
+				height: 34rpx;
+			}
+
+			.progress {
+				align-items: center;
+				flex-direction: row;
+				display: flex;
+				flex: 1;
+				margin-left: 16rpx;
+
+				.slider-container {
+					flex: 1;
+					margin-right: 16rpx;
+				}
+
+				.currtime-box,
+				.durationTime-box {
+					width: 74rpx;
+					line-height: 84rpx;
+				}
+
+				.currtime,
+				.durationTime {
+					color: #ffffff;
+					font-size: 24rpx;
+				}
+			}
+
+			.play-rate {
+				width: 90rpx;
+				overflow: hidden;
+			}
+
+			.play-rate-text {
+				color: #fff;
+				font-size: 30rpx;
+				text-align: center;
+			}
+		}
+
+		.play-rate-menu {
+			background-color: rgba(0, 0, 0, 0.7);
+			width: 180rpx;
+			padding-top: 66rpx;
+			position: absolute;
+			right: 0;
+			bottom: 0;
+			z-index: 10;
+		}
+
+		.play-rate-item {
+			height: 70rpx;
+			line-height: 70rpx;
+		}
+
+		.play-rate-item-text {
+			text-align: center;
+			color: #fff;
+			font-size: 28rpx;
+		}
+
+		.activeRate {
+			color: #5785e3;
+			font-size: 28rpx;
+		}
+	}
+</style>

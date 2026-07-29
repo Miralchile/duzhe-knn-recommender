@@ -1,0 +1,45 @@
+package ${packageName}.domain;
+
+import java.io.Serializable;
+import java.util.List;
+import java.util.stream.Collectors;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import com.flycms.modules.dream.domain.dto.DreamColumnDTO;
+import lombok.Data;
+
+/**
+ * Treeselect树结构实体类
+ *
+ * @author kaifei sun
+ */
+@Data
+public class ${ClassName}TreeSelect implements Serializable
+{
+    private static final long serialVersionUID = 1L;
+
+    /** 节点ID */
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long id;
+
+    /** 节点名称 */
+    private String label;
+
+    /** 子节点 */
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private List<${ClassName}TreeSelect> children;
+
+    public TreeSelect()
+    {
+    }
+
+    public ${ClassName}TreeSelect(${ClassName}DTO column)
+    {
+        this.id = column.get${TreeCode}();
+
+        this.label = column.get${TreeName}();
+
+        this.children = column.getChildren().stream().map(TreeSelect::new).collect(Collectors.toList());
+    }
+}

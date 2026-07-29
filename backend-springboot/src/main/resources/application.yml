@@ -1,0 +1,104 @@
+# 项目相关配置
+duzheStudy:
+  # 名称
+  name: duzheStudy
+  # 版本
+  version: 1.0.0
+  # 版权年份
+  copyrightYear: 2021
+
+# 开发环境配置
+server:
+  # 服务器的HTTP端口，默认为8080
+  port: 59091
+  servlet:
+    # 应用的访问路径
+    context-path: /duzhe
+
+# 日志配置
+logging:
+  level:
+    com.duzheStudy: debug
+    org.springframework: warn
+    com.anji: off
+
+# Spring配置
+spring:
+  application:
+    name: duzheStudy
+  # 资源信息
+  messages:
+    # 国际化资源文件路径
+    basename: i18n/messages
+  profiles:
+    active: dev
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 1024MB
+      max-request-size: 1024MB
+  data:
+    elasticsearch:
+      hostname: localhost
+      port: 9200
+# MyBatis配置
+mybatis:
+  # 搜索指定包别名
+  type-aliases-package: com.duzheStudy.modules.**.domain,com.duzheStudy.modules.**.domain.**
+  # 配置mapper的扫描，找到所有的mapper.xml映射文件
+  mapper-locations: classpath:com/duzheStudy/modules/**/mapper/*.xml
+  configuration:
+    mapUnderscoreToCamelCase: true
+    default-fetch-size: 100
+    default-statement-timeout: 300000
+    cache-enabled: true
+
+# PageHelper分页插件
+pagehelper:
+  helperDialect: mysql
+  supportMethodsArguments: true
+  params: count=countSql
+
+# Swagger配置
+swagger:
+  # 是否开启swagger
+  enabled: true
+  # 请求前缀
+  pathMapping: /dev-api
+#  pathMapping: /
+# 防止XSS攻击
+xss:
+  # 过滤开关
+  enabled: true
+  # 排除链接（多个用逗号分隔）
+  excludes: /system/notice
+  # 匹配链接
+  urlPatterns: /system/*,/monitor/*,/tool/*
+
+
+oss:
+  endpoint: ${OSS_ENDPOINT:oss-cn-hangzhou.aliyuncs.com}
+  AccessKeyId: ${OSS_ACCESS_KEY_ID:replace-with-your-access-key-id}
+  AccessKeySecret: ${OSS_ACCESS_KEY_SECRET:replace-with-your-access-key-secret}
+  bucketName: ${OSS_BUCKET_NAME:reader-station}
+  sufferUrl: ${OSS_PUBLIC_HOST:reader-station.oss-cn-hangzhou.aliyuncs.com}
+  parentDir: ${OSS_PARENT_DIR:images/}
+forest:
+  backend: okhttp3             # 后端HTTP框架（默认为 okhttp3）
+  max-connections: 50        # 连接池最大连接数（默认为 500）
+  max-route-connections: 50   # 每个路由的最大连接数（默认为 500）
+  max-request-queue-size: 10 # [自v1.5.22版本起可用] 最大请求等待队列大小
+  max-async-thread-size: 30   # [自v1.5.21版本起可用] 最大异步线程数
+  max-async-queue-size: 16     # [自v1.5.22版本起可用] 最大异步线程池队列大小
+  timeout: 3000                # [已不推荐使用] 请求超时时间，单位为毫秒（默认为 3000）
+  connect-timeout: 3000        # 连接超时时间，单位为毫秒（默认为 timeout）
+  read-timeout: 3000           # 数据读取超时时间，单位为毫秒（默认为 timeout）
+  max-retry-count: 0           # 请求失败后重试次数（默认为 0 次不重试）
+  ssl-protocol: TLS            # 单向验证的HTTPS的默认TLS协议（默认为 TLS）
+  log-enabled: true            # 打开或关闭日志（默认为 true）
+  log-request: true            # 打开/关闭Forest请求日志（默认为 true）
+  log-response-status: true    # 打开/关闭Forest响应状态日志（默认为 true）
+  log-response-content: true   # 打开/关闭Forest响应内容日志（默认为 false）
+  async-mode: platform         # [自v1.5.27版本起可用] 异步模式（默认为 platform）
+
+

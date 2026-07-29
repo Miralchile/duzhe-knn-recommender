@@ -1,0 +1,116 @@
+package ${packageName}.mapper;
+
+import java.util.List;
+import com.tokenview.common.utils.page.Pager;
+import ${packageName}.domain.${ClassName};
+import org.springframework.stereotype.Repository;
+
+/**
+ * ${functionName}Mapper接口
+ * 
+ * @author ${author}
+ * @date ${datetime}
+ */
+@Repository
+public interface ${ClassName}Mapper 
+{
+    /////////////////////////////////
+    ///////       增加       ////////
+    /////////////////////////////////
+    /**
+     * 新增${functionName}
+     *
+     * @param ${className} ${functionName}
+     * @return 结果
+     */
+    public int insert${ClassName}(${ClassName} ${className});
+
+    /////////////////////////////////
+    ///////        刪除      ////////
+    /////////////////////////////////
+    /**
+     * 删除${functionName}
+     *
+     * @param ${pkColumn.javaField} ${functionName}ID
+     * @return 结果
+     */
+    public int delete${ClassName}ById(${pkColumn.javaType} ${pkColumn.javaField});
+
+    /**
+     * 批量删除${functionName}
+     *
+     * @param ${pkColumn.javaField}s 需要删除的数据ID
+     * @return 结果
+     */
+    public int delete${ClassName}ByIds(${pkColumn.javaType}[] ${pkColumn.javaField}s);
+
+    /////////////////////////////////
+    ///////        修改      ////////
+    /////////////////////////////////
+    /**
+     * 修改${functionName}
+     *
+     * @param ${className} ${functionName}
+     * @return 结果
+     */
+    public int update${ClassName}(${ClassName} ${className});
+
+
+    /////////////////////////////////
+    ///////        查詢      ////////
+    /////////////////////////////////
+#foreach($column in $columns)
+#if($column.isRepeat)
+    /**
+     * 校验${column.columnComment}是否唯一
+     *
+     * @param ${className} ${functionName}ID
+     * @return 结果
+     */
+    public int check${ClassName}$stringUtils.convertToCamelCase(${column.ColumnName})Unique(${ClassName}  ${className});
+
+#end
+#end
+
+    /**
+     * 查询${functionName}
+     * 
+     * @param ${pkColumn.javaField} ${functionName}ID
+     * @return ${functionName}
+     */
+    public ${ClassName} find${ClassName}ById(${pkColumn.javaType} ${pkColumn.javaField});
+
+    /**
+     * 查询${functionName}数量
+     *
+     * @param pager 分页处理类
+     * @return ${functionName}数量
+     */
+    public int query${ClassName}Total(Pager pager);
+
+#if($table.crud)
+    /**
+     * 查询${functionName}列表
+     * 
+     * @param pager 分页处理类
+     * @return ${functionName}集合
+     */
+    public List<${ClassName}> select${ClassName}Pager(Pager pager);
+#elseif($table.tree)
+    /**
+     * 查询${functionName}列表
+     *
+     * @param ${className} ${functionName}
+     * @return ${functionName}集合
+     */
+    public List<${ClassName}> select${ClassName}List(${ClassName} ${className});
+#end
+
+    /**
+     * 查询需要导出的${functionName}列表
+     *
+     * @param ${className} ${functionName}
+     * @return ${functionName}集合
+     */
+    public List<${ClassName}> export${ClassName}List(${ClassName} ${className});
+}

@@ -1,0 +1,33 @@
+.flex,
+.flex-jc-ac,
+.flex-jb-ac,
+.flex-js-ac,
+.flex-as-col,
+.flex-jc-ac-col{
+	display: flex;
+}
+.flex-jc-ac, .flex-jc-ac-col{
+	justify-content: center;
+	align-items: center;
+}
+
+.flex-jb-ac {
+	justify-content: space-between;
+	align-items: center;
+}
+
+.flex-js-ac{
+	justify-content: flex-start;
+	align-items: center;
+}
+.flex-jc-ac-col{
+	flex-flow: column;
+}
+.status_bar {
+	height: var(--status-bar-height);
+	width: 100%;
+}
+.flex-as-col{
+	align-items: flex-start;
+	flex-flow: column;
+}

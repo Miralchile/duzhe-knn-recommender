@@ -1,0 +1,1500 @@
+<template>
+  <view>
+    <view style="width: 100%; height: 45rpx; background-color: #000000"></view>
+    <!-- <view @touchmove="touchMove" @touchstart="touchStart" @touchend="touchEnd"> -->
+    <view>
+      <xVideo
+        ref="xvideo"
+        :showRate="true"
+        :height="this.videoHeight"
+        :src="this.videoUrl"
+        :danmuList="danmuList"
+      />
+    </view>
+
+    <!-- 简介、评论topbar -->
+    <view class="top-bar-detail">
+      <view>
+        <view @click="topBarCheck(1)" class="detail-text">
+          <text
+            style="font-size: 26rpx; padding: 0rpx 10rpx; width: 80rpx"
+            :class="{ 'top-bar-select': tobarIndex == 1 }"
+            >视频</text
+          >
+        </view>
+      </view>
+
+      <view style="margin-left: 45rpx">
+        <view @click="topBarCheck(2)" class="detail-text">
+          <text
+            style="font-size: 26rpx; padding: 0rpx 10rpx; width: 80rpx"
+            :class="{ 'top-bar-select': tobarIndex == 2 }"
+            >评论</text
+          >
+        </view>
+      </view>
+
+      <view style="margin-left: 40rpx">
+        <view @click="topBarCheck(3)" class="detail-text-2">
+          <text
+            style="font-size: 26rpx; padding: 0rpx 10rpx; width: 130rpx"
+            :class="{ 'top-bar-select': tobarIndex == 3 }"
+            >相关推荐</text
+          >
+        </view>
+      </view>
+
+      <view
+        style="height: 65rpx; width: 270rpx; margin-left: 50rpx; padding: 10rpx"
+      >
+        <u-input
+          fontSize="13px"
+          v-model="danmuForm.text"
+          placeholder="  请输入弹幕"
+          style="background: #eeeeee; margin-top: 0rpx; height: 55rpx"
+          @confirm="danmuConfirm"
+        >
+        </u-input>
+      </view>
+    </view>
+
+    <!-- 简介页数据 -->
+    <view @touchmove="touchMove" @touchstart="touchStart" @touchend="touchEnd">
+      <view v-if="tobarIndex == 1">
+        <!-- 头像昵称等 -->
+        <view class="header-box">
+          <view class="img-nick-box">
+            <view @click="clickAvatar()">
+              <u-image
+                style="height: 60rpx; width: 60rpx"
+                :src="this.authorAvatarUrl"
+                mode="scaleToFill"
+              ></u-image>
+            </view>
+            <view class="up-data">
+              <text style="font-size: 27rpx; font-weight: bold; color: #00aaff">
+                {{ authorName }}
+              </text>
+              <text style="font-size: 20rpx; font-weight: bold; color: #b8b8b8">
+                0粉丝
+              </text>
+            </view>
+            <view class="about-btn-class">
+              <view
+                @click="clickFollow()"
+                v-if="!isFollowFlag"
+                class="about-btn"
+              >
+                <text
+                  style="font-size: 21rpx; color: #ffffff; margin-left: 2rpx"
+                  >+关注</text
+                >
+              </view>
+              <view
+                @click="clickCancelFollow()"
+                v-if="isFollowFlag"
+                class="about-btn"
+              >
+                <text
+                  style="font-size: 21rpx; color: #ffffff; margin-left: 2rpx"
+                  >已关注</text
+                >
+              </view>
+            </view>
+          </view>
+          <!-- 关注按钮 -->
+
+          <!-- 点赞等数据 -->
+          <view class="stat-box">
+            <!-- 点赞 -->
+            <view style="margin-top: 20rpx; flex: 1">
+              <image
+                v-if="!this.isThumb"
+                src="../../static/itemImg/like.png"
+                mode="scaleToFill"
+                @click="thumbUp"
+                style="height: 40rpx; width: 40rpx"
+              ></image>
+              <image
+                v-if="this.isThumb"
+                src="../../static/itemImg/likeed.png"
+                mode="scaleToFill"
+                @click="thumbUp"
+                style="height: 40rpx; width: 40rpx"
+              ></image>
+              <text
+                style="
+                  margin-top: 10rpx;
+                  color: #8b8b8b;
+                  font-size: 20rpx;
+                  margin-left: 12rpx;
+                "
+              >
+                {{ thumbNum }}
+              </text>
+            </view>
+
+            <!-- 收藏 -->
+            <view style="margin-top: 20rpx; flex: 1">
+              <image
+                v-if="!this.isCollection"
+                src="../../static/itemImg/shoucang.png"
+                mode="scaleToFill"
+                @click="clickCollect"
+                style="height: 40rpx; width: 40rpx"
+              ></image>
+              <image
+                v-if="this.isCollection"
+                src="../../static/itemImg/shoucanged.png"
+                mode="scaleToFill"
+                @click="clickCollect"
+                style="height: 40rpx; width: 40rpx"
+              ></image>
+              <text style="margin-top: 10rpx; color: #8b8b8b; font-size: 20rpx">
+                收藏
+              </text>
+            </view>
+
+            <!-- 转发 -->
+            <view style="margin-top: 20rpx; flex: 1">
+              <image
+                src="../../static/itemImg/share.png"
+                mode="scaleToFill"
+                style="height: 40rpx; width: 40rpx"
+              ></image>
+              <text style="margin-top: 10rpx; color: #8b8b8b; font-size: 20rpx">
+                转发
+              </text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 标题以及下拉详情 -->
+        <view>
+          <view class="title-class-box">
+            <text
+              style="
+                margin-left: 17rpx;
+                width: 100%;
+                font-size: 28rpx;
+                color: #000000;
+              "
+            >
+              {{ title }}
+            </text>
+          </view>
+        </view>
+
+        <!-- 播放信息 -->
+        <view class="player-box">
+          <!-- 播放量 -->
+          <view class="bofang">
+            <u-icon name="play-circle" size="12px"></u-icon>
+            <text class="bofang-number">
+              {{ views }}
+            </text>
+          </view>
+          <!-- 弹幕数 -->
+          <view class="danmu">
+            <u-icon name="more-circle" size="12px"></u-icon>
+            <text class="danmu-number">
+              {{ commentNum }}
+            </text>
+          </view>
+
+          <!-- 发布时间 -->
+          <view class="fabu">
+            <text class="fabu">上传时间：</text>
+            <u--text
+              mode="date"
+              :text="this.createdBy"
+              size="8"
+              type="信息"
+            ></u--text>
+          </view>
+
+          <!-- up主昵称 -->
+          <view class="upnick">
+            <text class="upnick">上传者：</text>
+            <text
+              style="
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-size: 20rpx;
+                color: #8b8b8b;
+                flex-flow: row;
+              "
+              >{{ authorName }}</text
+            >
+          </view>
+        </view>
+
+        <!-- 简介 -->
+        <view
+          class="introduction"
+          style="margin-top: 20rpx; display: flex; flex-wrap: wrap"
+        >
+          <text style="font-size: 26rpx; color: #7c7c7c">简介：</text>
+          <u-icon
+            v-if="showIntroduction"
+            name="arrow-up"
+            style="position: absolute; right: 30rpx"
+            @click="changeShowIntroduction"
+          ></u-icon>
+          <u-icon
+            v-if="!showIntroduction"
+            name="arrow-down"
+            style="position: absolute; right: 30rpx"
+            @click="changeShowIntroduction"
+          ></u-icon>
+        </view>
+
+        <view class="introduction">
+          <text
+            style="font-size: 23rpx; color: #7c7c7c; margin-top: 10rpx"
+            v-if="showIntroduction"
+            >{{ introduction }}</text
+          >
+        </view>
+
+        <!-- 分类 -->
+        <view style="margin-top: 20rpx; display: flex; flex-flow: row">
+          <text
+            style="
+              position: relative;
+              left: 30rpx;
+              top: 3rpx;
+              width: 120rpx;
+              font-size: 26rpx;
+              color: #7c7c7c;
+            "
+            >分类:</text
+          >
+          <uni-tag
+            :text="category"
+            style="
+              width: 150rpx;
+              text-align: center;
+              margin-right: 33rpx;
+              background-color: #55aaff;
+              color: #ffffff;
+              border-radius: 10px;
+            "
+          />
+          <uni-tag
+            :text="channel"
+            style="
+              width: 150rpx;
+              text-align: center;
+              margin-right: 33rpx;
+              background-color: #55aaff;
+              color: #ffffff;
+              border-radius: 10px;
+            "
+          />
+        </view>
+        <!-- 评分 -->
+        <view style="margin-top: 20rpx; display: flex; flex-flow: row">
+          <text
+            style="
+              position: relative;
+              left: 30rpx;
+              width: 120rpx;
+              font-size: 26rpx;
+              color: #7c7c7c;
+              top: 3rpx;
+            "
+            >评分:</text
+          >
+          <view>
+            <u-rate
+              :count="10"
+              allowHalf
+              v-model="rateValue"
+              @change="changeRate"
+            ></u-rate>
+          </view>
+        </view>
+        <!-- 标签 -->
+        <view style="margin-top: 20rpx; display: flex; flex-wrap: row">
+          <text
+            style="
+              position: relative;
+              left: 30rpx;
+              width: 120rpx;
+              font-size: 26rpx;
+              color: #7c7c7c;
+              top: 3rpx;
+            "
+            >标签:</text
+          >
+          <!-- <uni-tag v-for="(item, index) in tagList" :key="index" :text="item" style="width: 112rpx;text-align: center;margin-right: 33rpx;
+				background-color: #dfdfdf;color: #000000;border-radius: 10px;" /> -->
+        </view>
+
+        <!-- 简介 -->
+        <!-- <view class="introduction" style="margin-top: 35rpx;display: flex;flex-wrap: wrap;">
+					<text style="font-size: 26rpx;color: #7c7c7c;">AI智能文本：</text>
+					<u-icon v-if="showMainText" name="arrow-up" style="position: absolute;right: 30rpx;"
+						@click="changeShowMainText"></u-icon>
+					<u-icon v-if="!showMainText" name="arrow-down" style="position: absolute;right: 30rpx;"
+						@click="changeShowMainText"></u-icon>
+				</view>
+
+				<view v-if="showMainText" class="introduction">
+					<text
+						style="font-size: 23rpx;color: #7c7c7c;margin-top: 10rpx;">4月15日，据央视新闻消息：今天，中国发布“伏特台风”黑客组织溯源报告。在外交部例行记者会上，发言人林剑表示，种种迹象显示，美国情报机构、网络安全企业为获取国会预算拨款、政府合同，合谋拼凑所谓证据，散布中国政府支持对美“网络攻击”的虚假信息。众所周知，美国才是最大的网络攻击的来源地，是网络空间安全的最大威胁。一段时间以来，美国一些人“贼喊捉贼”，把网络攻击溯源当成打压中国的工具，将网络安全问题政治化，严重侵害中方合法权益。中方敦促美方立即停止对于中国的网络攻击，停止对中国的污蔑抹黑。（总台央视记者张雪松
+						申杨）
+						4月15日，据央视新闻消息：今天，中国发布“伏特台风”黑客组织溯源报告。在外交部例行记者会上，发言人林剑表示，种种迹象显示，美国情报机构、网络安全企业为获取国会预算拨款、政府合同，合谋拼凑所谓证据，散布中国政府支持对美“网络攻击”的虚假信息。众所周知，美国才是最大的网络攻击的来源地，是网络空间安全的最大威胁。一段时间以来，美国一些人“贼喊捉贼”，把网络攻击溯源当成打压中国的工具，将网络安全问题政治化，严重侵害中方合法权益。中方敦促美方立即停止对于中国的网络攻击，停止对中国的污蔑抹黑。（总台央视记者张雪松
+						申杨）</text>
+				</view> -->
+      </view>
+    </view>
+
+    <u-popup :show="isShowCollectionFolder" @close="closeCollection">
+      <view style="height: 600rpx; overflow: scroll; background-color: #f3f3f4">
+        <view v-if="folderList.length > 0">
+          <view
+            style="display: flex"
+            v-for="(item, index) in folderList"
+            :key="index"
+          >
+            <view
+              style="
+                margin-top: 30rpx;
+                margin-left: 24rpx;
+                margin-right: 24rpx;
+                background-color: #fff;
+              "
+              @click="selectFolder(item.id)"
+            >
+              <view style="padding: 15rpx; display: flex; flex-flow: row">
+                <view>
+                  <image
+                    style="width: 180rpx; height: 120rpx"
+                    :src="item.folderCoverImage"
+                    mode="aspectFill"
+                  ></image>
+                </view>
+                <view
+                  style="margin-left: 10rpx; justify-content: space-between"
+                >
+                  <text style="font-size: 29rpx">{{ item.folderName }}</text>
+                  <view>
+                    <view>
+                      <text style="font-size: 29rpx; color: #96bd46"
+                        >作品数 {{ item.workNum }}</text
+                      >
+                    </view>
+                  </view>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </u-popup>
+
+    <!-- 评论数据 -->
+    <view class="reply-box-2" v-show="tobarIndex == 2">
+      <comment v-if="this.showChat" :message="this.id"></comment>
+    </view>
+    <!-- 在此处修改了推荐相关 -->
+    <view v-show="tobarIndex == 3">
+      <view
+        v-if="this.showRelation"
+        style="
+          background-color: #f5f2f0;
+          height: 100%;
+          display: flex;
+          flex-direction: row;
+          flex-wrap: wrap;
+          width: 100%;
+          align-items: center;
+          border-radius: 5px;
+          margin-top: 15rpx;
+        "
+      >
+        <view
+          style="
+            background-color: #fff;
+            margin-left: 22rpx;
+            margin-top: 20rpx;
+            display: flex;
+            flex-direction: column;
+            width: 341rpx;
+            height: 300rpx;
+            border-radius: 5px;
+          "
+          v-for="(item, index) in items"
+          :key="index"
+        >
+          <view
+            v-if="item.type == 1"
+            style="height: 100%"
+            @click="gotoVideo(item.id)"
+          >
+            <!-- 封面字段coverImageUrlNew -->
+            <view style="width: 100%; height: 195rpx">
+              <image
+                mode="aspectFill"
+                :src="item.coverImageUrlNew"
+                style="
+                  border-radius: 5px 5px 0 0;
+                  width: 100%;
+                  height: 100%;
+                  background-color: #e8e8e8;
+                "
+              ></image>
+              <!-- 时长字段 -->
+              <u--text
+                color="white"
+                :text="item.durationString"
+                style="
+                  margin-left: 240rpx;
+                  margin-bottom: 85rpx;
+                  z-index: 999;
+                  height: 15%;
+                  width: 25%;
+                  background-color: black;
+                  opacity: 0.5;
+                "
+                align="center"
+              ></u--text>
+            </view>
+            <view>
+              <u--text
+                :text="item.title"
+                style="margin-top: 13rpx; margin-left: 15rpx"
+                size="13"
+              ></u--text>
+              <view
+                style="
+                  margin-top: 10rpx;
+                  z-index: 5;
+                  display: flex;
+                  flex-flow: row;
+                "
+              >
+                <uni-tag
+                  :circle="true"
+                  :text="item.category"
+                  size="small"
+                  style="
+                    color: #000000;
+                    border: 0rpx;
+                    font-size: 10px;
+                    background-color: #ebebeb;
+                    margin-left: 15rpx;
+                  "
+                />
+                <!-- <uni-tag :circle="true" :text="item.author" size="small" style="color:#000000;border:0rpx;font-size: 10px;background-color: #ebebeb;
+									margin-left: 15rpx;" /> -->
+              </view>
+            </view>
+          </view>
+
+          <view
+            v-if="item.type == 2"
+            style="height: 100%"
+            @click="gotoImage(item._id)"
+          >
+            <view style="width: 100%; height: 195rpx">
+              <image
+                mode="aspectFill"
+                :src="item.coverImageUrlNew"
+                style="
+                  border-radius: 5px 5px 0 0;
+                  width: 100%;
+                  height: 100%;
+                  background-color: #e8e8e8;
+                "
+              ></image>
+              <!-- <u--text color="white" :text="item.durationString" style="margin-left:240rpx;margin-bottom: 85rpx;
+							z-index: 999;height: 15%;width: 25%;background-color: black;opacity: 0.5;" align="center"></u--text> -->
+            </view>
+            <view>
+              <u--text
+                :text="item.title"
+                style="margin-top: 13rpx; margin-left: 15rpx"
+                size="13"
+              ></u--text>
+              <view
+                style="
+                  margin-top: 10rpx;
+                  z-index: 5;
+                  display: flex;
+                  flex-flow: row;
+                "
+              >
+                <uni-tag
+                  :circle="true"
+                  :text="item.category"
+                  size="small"
+                  style="
+                    color: #000000;
+                    border: 0rpx;
+                    font-size: 10px;
+                    background-color: #ebebeb;
+                    margin-left: 15rpx;
+                  "
+                />
+                <uni-tag
+                  :circle="true"
+                  :text="item.channel"
+                  size="small"
+                  style="
+                    color: #000000;
+                    border: 0rpx;
+                    font-size: 10px;
+                    background-color: #ebebeb;
+                    margin-left: 15rpx;
+                  "
+                />
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+import xVideo from '@/components/x-video/x-video-player.nvue'
+import comment from '@/pages/works/videoWorkComment.nvue'
+import {
+  isFollowThisUser,
+  followThisUser,
+  cancelFollowThisUser,
+} from '@/api/others.js'
+import { request } from '../../utils/request.js'
+import {
+  getVideoWorkById,
+  addOrDeleteVideoWorkThumbById,
+  checkIsVideoWorkThumb,
+  getVideoWorkThumbNumById,
+  getVideoWorkCommentNumById,
+  getVideoWorkDanmuById,
+  addVideoWorkDanmuById,
+  addUserMovieInfo,
+  readScore,
+  getNewVideoWorkById,
+} from '@/api/videoPlay'
+import { getCurrentUser } from '@/api/mine.js'
+import {
+  getFolderListByCurrentUser,
+  addColletionToFolder,
+  checkIsCollection,
+  deleteCollectionByUserIdAndWorkId,
+} from '@/api/collection.js'
+import { getRelation } from '@/api/videoPlay.js'
+export default {
+  components: {
+    xVideo,
+    comment,
+  },
+  props: {
+    storageKey: {
+      type: String,
+      default: 'history-list',
+    },
+  },
+  data() {
+    return {
+      videoHeight: '1220rpx',
+      items: [],
+      loadStatus: [false, false, false, false, false, false, false, false],
+      folderList: [],
+      isCollection: false,
+      isShowCollectionFolder: false,
+      isFollowFlag: false,
+      tobarIndex: 1,
+      id: undefined,
+      videoUrl: undefined,
+      title: undefined,
+      commentNum: 0,
+      rateValue: 0,
+      thumbNum: 0,
+      currentTime: 0,
+      status: true,
+      duration: 0,
+      danmuList: [],
+      showChat: false,
+      showRelation: false,
+      thumbUpForm: {
+        id: undefined,
+      },
+      isThumb: false,
+      isLoaded: false,
+      tagList: [],
+      danmuForm: {
+        text: undefined,
+        id: undefined,
+        time: undefined,
+      },
+      historyWork: {
+        _id: undefined,
+        title: undefined,
+        channel: undefined,
+        category: undefined,
+        coverImage: undefined,
+        duration: 0,
+        type: 1,
+      },
+      collectionForm: {
+        workId: undefined,
+        folderId: undefined,
+      },
+      createdBy: undefined,
+      authorName: undefined,
+      userId: undefined,
+      authorAvatarUrl: undefined,
+      views: 0,
+      introduction: undefined,
+      showMainText: true,
+      showIntroduction: false,
+      channel: undefined,
+      category: undefined,
+      currentUserId: undefined,
+      nextVideo: undefined,
+
+      flag: 0,
+      lastX: 0,
+    }
+  },
+  onLoad(option) {
+    this.movieId = option.id
+    getVideoWorkDanmuById(option.id).then((res) => {
+      this.danmuList = res.danmuList
+      this.isLoaded = true
+    })
+
+    getNewVideoWorkById(option.id).then((res) => {
+      // 新的视频推荐接口
+      this.items = res.data
+      for (var i = 0; i < this.items.length; i++) {
+        var duration = this.items[i].duration
+        this.items[i].type = 1
+        var seconds = Math.floor(duration / 1000)
+        var hours = Math.floor(seconds / 3600) // 计算小时数
+        seconds %= 3600 // 去掉小时数后剩余的部分转换为分钟
+        var minutes = Math.floor(seconds / 60) // 计算分钟数
+        var seconds = seconds % 60 // 去掉分钟数后剩余的秒数
+        hours = ('0' + hours).slice(-2)
+        minutes = ('0' + minutes).slice(-2)
+        seconds = ('0' + seconds).slice(-2)
+        this.items[i].durationString = minutes + ':' + seconds
+        this.items[i].coverImageUrlNew =
+          this.items[i].coverImage + '?t=' + new Date().getTime()
+      }
+    })
+
+    getVideoWorkById(option.id).then((res) => {
+      let data = res
+      this.videoUrl = data.url
+      this.createdBy = data.createdBy
+      this.authorName = data.authorName
+      this.authorAvatarUrl = data.authorAvatarUrl
+      this.userId = data.author
+      this.id = data._id
+      this.views = data.views
+      this.introduction = data.introduction
+      this.title = data.title
+      this.channel = data.channel
+      this.category = data.category
+      this.tagList = data.tagList
+
+      getRelation(this.category).then((res) => {
+        this.nextVideo = res[0]._id
+      })
+
+      this.historyWork._id = data._id
+      this.historyWork.category = data.category
+      this.historyWork.channel = data.channel
+      this.historyWork.coverImage = data.coverImage
+      this.historyWork.duration = data.duration
+      this.historyWork.title = data.title
+      this.historyWork.type = data.type
+
+      let historyWorkList = []
+      historyWorkList = uni.getStorageSync(this.storageKey)
+      for (var i = 0; i < historyWorkList.length; i++) {
+        if (historyWorkList[i]._id == this.historyWork._id) {
+          historyWorkList.splice(i, 1)
+        }
+      }
+      historyWorkList.unshift(this.historyWork)
+
+      if (historyWorkList.length > 8) {
+        historyWorkList = historyWorkList.slice(0, 8)
+      }
+
+      uni.setStorageSync(this.storageKey, historyWorkList)
+
+      isFollowThisUser(this.userId).then((res) => {
+        this.isFollowFlag = res
+      })
+    })
+
+    checkIsVideoWorkThumb(option.id).then((res) => {
+      this.isThumb = res
+    })
+
+    getVideoWorkThumbNumById(option.id).then((res) => {
+      this.thumbNum = res
+    })
+
+    getVideoWorkCommentNumById(option.id).then((res) => {
+      this.commentNum = res
+    })
+
+    getFolderListByCurrentUser().then((res) => {
+      this.folderList = res
+    })
+
+    getCurrentUser().then((res) => {
+      this.currentUserId = res.id
+      const info = {
+        userId: this.currentUserId,
+        movieId: this.movieId,
+      }
+      readScore(info).then((res1) => {
+        this.rateValue = res1.data || 0
+        this.baseRate = this.rateValue
+      })
+    })
+  },
+  methods: {
+    changeRate(e) {
+      this.$nextTick(async () => {
+        if (this.baseRate === e) return
+        this.baseRate = e
+        await addUserMovieInfo({
+          userId: this.currentUserId,
+          movieId: this.movieId,
+          score: e,
+          dealFlag: '0',
+        })
+        uni.showModal({
+          content: '评分成功',
+          icon: 'none',
+          showCancel: false,
+          success: function (res) {
+            if (res.confirm) {
+              console.log('用户点击确定')
+            }
+          },
+        })
+      })
+    },
+    touchStart(e) {
+      this.lastX = e.touches[0].pageX
+      this.lastY = e.touches[0].pageY
+    },
+
+    touchEnd(e) {
+      this.flag = 0
+    },
+
+    touchMove(e) {
+      if (this.flag !== 0) {
+        return
+      }
+
+      let currentX = e.touches[0].pageX
+      let currentY = e.touches[0].pageY
+      let tx = currentX - this.lastX
+      let ty = currentY - this.lastY
+      let isLr = Math.abs(tx) > Math.abs(ty)
+      if (isLr) {
+        this.flag = tx < 0 ? 1 : 2
+        if (tx < 0) {
+          uni.navigateTo({
+            url: '/pages/works/videoPlay?id=' + this.nextVideo,
+            animationType: 'slide-in-right',
+            animationDuration: 300,
+          })
+        } else {
+          uni.navigateBack({
+            delta: 1,
+          })
+        }
+      }
+      this.lastX = currentX
+      this.lastY = currentY
+    },
+
+    gotoVideo(id) {
+      uni.navigateTo({
+        url: '/pages/works/videoPlay?id=' + id,
+      })
+    },
+    gotoImage(id) {
+      uni.navigateTo({
+        url: '/pages/works/imageContext?id=' + id,
+      })
+    },
+
+    clickCollect() {
+      this.isShowCollectionFolder = true
+    },
+
+    closeCollection() {
+      this.isShowCollectionFolder = false
+    },
+
+    clickFollow() {
+      if (this.currentUserId == this.userId) {
+        uni.showToast({
+          title: '只能关注其他用户',
+          icon: 'none',
+        })
+      } else {
+        followThisUser(this.userId).then(() => {
+          uni.showToast({
+            title: '关注成功',
+            icon: 'none',
+          })
+          isFollowThisUser(this.userId).then((res) => {
+            this.isFollowFlag = res
+          })
+        })
+      }
+    },
+
+    clickCancelFollow() {
+      cancelFollowThisUser(this.userId).then(() => {
+        uni.showToast({
+          title: '取消关注',
+          icon: 'none',
+        })
+        isFollowThisUser(this.userId).then((res) => {
+          this.isFollowFlag = res
+        })
+      })
+    },
+
+    clickAvatar() {
+      uni.navigateTo({
+        url: '/pages/others/index?userId=' + this.userId,
+      })
+    },
+    changeShowIntroduction() {
+      this.showIntroduction = !this.showIntroduction
+    },
+    changeShowMainText() {
+      this.showMainText = !this.showMainText
+    },
+    danmuConfirm() {
+      this.$refs.xvideo.videoPlayer.sendDanmu({
+        text: this.danmuForm.text,
+        color: '#ffffff',
+      })
+      this.danmuForm.id = this.id
+      this.danmuForm.time = this.$refs.xvideo.current
+      addVideoWorkDanmuById(this.danmuForm)
+      this.danmuForm.text = ''
+    },
+
+    thumbUp() {
+      this.thumbUpForm.id = this.id
+      addOrDeleteVideoWorkThumbById(this.thumbUpForm).then(() => {
+        checkIsVideoWorkThumb(this.id).then((res) => {
+          if (this.isThumb == true) {
+            uni.showToast({
+              title: '取消点赞',
+              icon: 'success',
+            })
+          } else {
+            uni.showToast({
+              title: '点赞成功',
+              icon: 'success',
+            })
+          }
+          this.isThumb = res
+        })
+        getVideoWorkThumbNumById(this.id).then((res) => {
+          this.thumbNum = res
+        })
+      })
+    },
+
+    selectFolder(folderId) {
+      this.collectionForm.workId = this.id
+      this.collectionForm.folderId = folderId
+      addColletionToFolder(this.collectionForm).then(() => {
+        this.isShowCollectionFolder = false
+        uni.showToast({
+          title: '收藏成功',
+          icon: 'success',
+        })
+        this.isCollection = true
+      })
+    },
+
+    // 切换tobbar
+    topBarCheck(index) {
+      this.tobarIndex = index
+      if (index == 2) {
+        this.showChat = true
+        this.showRelation = false
+      } else if (index == 3) {
+        this.showChat = false
+        getRelation(this.category).then((res) => {
+          console.log(res, 444) // 原来的接口，没使用了，看数据格式					// 	this.items = res;
+          // 	for (var i = 0; i < this.items.length; i++) {
+          // 		var duration = this.items[i].duration
+          // 		var seconds = Math.floor(duration / 1000);
+          // 		var hours = Math.floor(seconds / 3600); // 计算小时数
+          // 		seconds %= 3600; // 去掉小时数后剩余的部分转换为分钟
+          // 		var minutes = Math.floor(seconds / 60); // 计算分钟数
+          // 		var seconds = seconds % 60; // 去掉分钟数后剩余的秒数
+          // 		hours = ("0" + hours).slice(-2);
+          // 		minutes = ("0" + minutes).slice(-2);
+          // 		seconds = ("0" + seconds).slice(-2);
+          // 		this.items[i].durationString = minutes + ':' + seconds
+          // 		this.items[i].coverImageUrlNew = this.items[i].coverImage + "?t=" + (new Date()
+          // 			.getTime())
+          // 	}
+        })
+        this.showRelation = true
+      } else {
+        this.showChat = false
+        this.showRelation = false
+      }
+    },
+  },
+}
+</script>
+
+<style lang="scss" scoped>
+.header-box {
+  display: flex;
+  flex-flow: row;
+}
+
+.zhanweiVedio {
+  height: 250px;
+  width: 100%;
+}
+
+.jiazai-img {
+  width: 95rpx;
+  height: 95rpx;
+  position: absolute;
+  top: 15%;
+  left: 45%;
+  z-index: 999;
+  animation: spin 2s linear 100;
+}
+
+/* 刷新图标旋转动画 */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.palyerArg-img {
+  width: 100%;
+  height: 100%;
+}
+
+.top-bar-detail {
+  background-color: #ffffff;
+  height: 75rpx;
+  padding-left: 50rpx;
+  border-bottom: #eeeeee 2rpx solid;
+  display: flex;
+  flex-flow: row;
+}
+
+.detail-text {
+  font-size: 10rpx;
+  padding: 0rpx 10rpx;
+  width: 75rpx;
+  margin-top: 16rpx;
+}
+
+.detail-text-2 {
+  font-size: 10rpx;
+  padding: 0rpx 10rpx;
+  width: 130rpx;
+  margin-top: 16rpx;
+}
+
+.reply-text {
+  font-size: 28rpx;
+  padding: 0rpx 10rpx;
+}
+
+.top-bar-select {
+  color: #00aaff;
+  border-bottom: #00aaff 5rpx solid;
+}
+
+.img-up {
+  height: 60rpx;
+  width: 60rpx;
+  border-radius: 100%;
+}
+
+.img-nick-box {
+  margin-left: 25rpx;
+  margin-top: 30rpx;
+  display: flex;
+  flex-flow: row;
+  width: 450rpx;
+}
+
+.up-data {
+  margin-left: 15rpx;
+}
+
+.nick-text {
+  font-size: 27rpx;
+  font-weight: bold;
+  color: #00aaff;
+}
+
+.fans-text {
+  font-size: 23rpx;
+  color: #c0c0c0;
+}
+
+.about-btn-class {
+  margin-left: 10rpx;
+  margin-top: 10rpx;
+  width: 65rpx;
+  height: 25rpx;
+  background-color: #00aaff;
+  color: #ffffff;
+  border-radius: 5rpx;
+}
+
+.add-class {
+  font-size: 25rpx;
+}
+
+.about-class {
+  font-size: 15rpx;
+  margin-left: 5rpx;
+}
+
+.jiantou {
+  width: 65rpx;
+  height: 65rpx;
+}
+
+.jiantou {
+  width: 100%;
+  height: 100%;
+}
+
+.title-class-box {
+  padding: 0rpx 15rpx;
+  margin-top: 25rpx;
+}
+
+.title-text {
+  margin-left: 17rpx;
+  width: 100%;
+  font-size: 28rpx;
+  color: #000000;
+}
+
+.bofang-number,
+.danmu-number,
+.fabu,
+.upnick,
+.copyright-text {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20rpx;
+  color: #8b8b8b;
+}
+
+.introduction {
+  margin-left: 28rpx;
+}
+
+.copyright-text,
+.danmu-number,
+.bofang-number {
+  margin-left: 5rpx;
+}
+
+.copyright {
+  height: 30rpx;
+  width: 30rpx;
+}
+
+.bofang,
+.danmu,
+.fabu,
+.upnick,
+.copyright {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-flow: row;
+  margin-left: 25rpx;
+}
+
+.player-box {
+  display: flex;
+  flex-flow: row;
+  margin-top: 25rpx;
+}
+
+.stat-box {
+  width: 300rpx;
+  margin-top: 20rpx;
+  display: flex;
+  flex-flow: row;
+}
+
+.like-box,
+.nolike-box,
+.bi-box,
+.shoucang-box,
+.share-box {
+  margin-top: 20rpx;
+  flex: 1;
+}
+
+.like-box {
+  height: 40rpx;
+  width: 40rpx;
+}
+
+.nolike-box {
+  height: 35rpx;
+  width: 35rpx;
+}
+
+.bi-box {
+  height: 40rpx;
+  width: 40rpx;
+}
+
+.shoucang-box {
+  height: 40rpx;
+  width: 40rpx;
+}
+
+.share-box {
+  height: 40rpx;
+  width: 40rpx;
+}
+
+.text-class {
+  margin-top: 10rpx;
+  color: #8b8b8b;
+  font-size: 20rpx;
+}
+
+.text-class-zhuanfa {
+  margin-top: 5rpx;
+  color: #8b8b8b;
+  font-size: 20rpx;
+}
+
+.border-class {
+  width: 100%;
+  height: 4rpx;
+  background-color: #eeeeee;
+  margin-top: 25rpx;
+}
+
+.reply-scroll-view {
+  height: 1200rpx;
+  width: 100%;
+}
+
+.item-box {
+  margin-top: 25rpx;
+}
+
+.item-box {
+  height: 65rpx;
+  width: 65rpx;
+  border-radius: 100%;
+  margin-left: 25rpx;
+}
+
+.nick-class {
+  color: #808080;
+  font-size: 28rpx;
+  font-weight: bold;
+  margin-left: 15rpx;
+}
+
+.reply-text-class {
+  color: #2f2f2f;
+  font-size: 25rpx;
+  margin-left: 95rpx;
+  margin-top: 15rpx;
+}
+
+.border-class2 {
+  margin-top: 25rpx;
+  height: 2rpx;
+  width: 100%;
+  background-color: #c0c0c0;
+}
+
+.zhanwei-class {
+  height: 600rpx;
+  width: 100%;
+}
+
+page {
+  height: 100%;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%;
+  background-color: #f5f6f7;
+}
+
+.content {
+  flex: 1;
+  margin-top: 10rpx;
+  width: 100%;
+  position: relative;
+}
+
+.swiper {
+  margin: 0rpx 0rpx 0;
+  height: 400rpx;
+
+  image {
+    height: 400rpx;
+    width: 100%;
+    border-radius: 0rpx;
+  }
+
+  .item {
+    position: relative;
+
+    .title {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      display: flex;
+      justify-content: center;
+      width: 100%;
+
+      text {
+        margin: 7% 6%;
+        display: flex;
+        align-items: center;
+        color: #fff;
+        display: -webkit-box;
+        text-overflow: ellipsis;
+        word-break: break-all;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        font-size: 34rpx;
+        padding: 14rpx 20rpx;
+        max-width: 610rpx;
+        line-height: 1.3;
+        border-radius: 5rpx;
+      }
+    }
+  }
+}
+
+.edit-button-content {
+  margin: 80rpx 0;
+
+  .edit-button {
+    width: 690rpx;
+    height: 80rpx;
+    font-size: 26rpx;
+    border-radius: 80rpx;
+    text-align: center;
+    line-height: 80rpx;
+    margin: 30rpx auto 0;
+    font-weight: bold;
+    border: 1rpx solid #dcdee0;
+    background: #fff;
+    border: 4rpx dashed #55aaff;
+  }
+}
+
+.list {
+  margin-top: 2rpx;
+
+  .item {
+    padding: 30rpx 24rpx 0 24rpx;
+
+    .info {
+      border: 5rpx #000000;
+      background-color: #ffffff;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+
+      .text {
+        flex-grow: 1;
+        flex-shrink: 1;
+        display: flex;
+        flex-direction: column;
+        margin: 20rpx 20rpx 20rpx 20rpx;
+
+        .title {
+          flex-grow: 1;
+          flex-shrink: 1;
+          font-size: 28rpx;
+          line-height: 1.5;
+          overflow: hidden;
+          height: 60rpx;
+          margin-bottom: 8rpx;
+        }
+
+        .other {
+          flex-grow: 1;
+          flex-shrink: 1;
+          display: flex;
+          align-items: center;
+          color: #999;
+          line-height: normal;
+
+          .left {
+            display: flex;
+            flex-grow: 1;
+            flex-shrink: 1;
+
+            .source {
+              font-size: 24rpx;
+              overflow: hidden;
+              width: 140rpx;
+            }
+
+            .time {
+              display: flex;
+              font-size: 24rpx;
+              align-items: center;
+            }
+          }
+
+          .right {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 0;
+            flex-shrink: 0;
+            margin-right: 10rpx;
+
+            text {
+              color: #96bd46;
+              font-size: 26rpx;
+            }
+          }
+
+          .view {
+          }
+        }
+      }
+
+      .photo {
+        image {
+          padding: 15rpx;
+          height: 100%;
+          width: 180rpx;
+        }
+      }
+    }
+
+    .line {
+      display: bock;
+      width: 100%;
+      height: 1rpx;
+      margin-top: 22rpx;
+      background: #e8e8e8;
+    }
+
+    &:last-child {
+      .line {
+      }
+    }
+  }
+}
+
+.top2 {
+  background-color: #e8e8e8;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+  align-items: center;
+  border-radius: 5px;
+  margin-top: 15rpx;
+}
+
+.card2 {
+  background-color: #ffffff;
+  margin-left: 3%;
+  margin-top: 20rpx;
+  display: flex;
+  flex-direction: column;
+  width: 45.5%;
+  height: 300rpx;
+  border-radius: 5px;
+}
+
+.card2-img {
+  border-radius: 5px 5px 0 0;
+  margin-bottom: 30rpx;
+  width: 100%;
+  height: 100%;
+  background-color: #e8e8e8;
+}
+
+.flex,
+.flex-jc-ac,
+.flex-jb-ac,
+.flex-js-ac,
+.flex-as-col,
+.flex-jc-ac-col {
+  display: flex;
+}
+.flex-jc-ac,
+.flex-jc-ac-col {
+  justify-content: center;
+  align-items: center;
+}
+
+.flex-jb-ac {
+  justify-content: space-between;
+  align-items: center;
+}
+
+.flex-js-ac {
+  justify-content: flex-start;
+  align-items: center;
+}
+.flex-jc-ac-col {
+  flex-flow: column;
+}
+
+.flex-as-col {
+  align-items: flex-start;
+  flex-flow: column;
+}
+</style>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.reader.social.mapper.SocArticleMapper">
+    
+    <resultMap type="SocArticle" id="SocArticleResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="authority"    column="authority"    />
+        <result property="publishTime"    column="publish_time"    />
+        <result property="content"    column="content"    />
+        <result property="imgList"    column="img_list"    />
+        <result property="viewNum"    column="view_num"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="isDeleted"    column="is_deleted"    />
+    </resultMap>
+
+    <sql id="selectSocArticleVo">
+        select id, user_id, authority, publish_time, content, img_list, view_num, create_time, update_time, is_deleted from soc_article
+    </sql>
+
+    <select id="selectSocArticleList" parameterType="SocArticle" resultMap="SocArticleResult">
+        <include refid="selectSocArticleVo"/>
+        <where>  
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="authority != null "> and authority = #{authority}</if>
+            <if test="publishTime != null "> and publish_time = #{publishTime}</if>
+            <if test="content != null  and content != ''"> and content = #{content}</if>
+            <if test="imgList != null  and imgList != ''"> and img_list = #{imgList}</if>
+            <if test="viewNum != null "> and view_num = #{viewNum}</if>
+            <if test="isDeleted != null "> and is_deleted = #{isDeleted}</if>
+        </where>
+    </select>
+    
+    <select id="selectSocArticleById" parameterType="Long" resultMap="SocArticleResult">
+        <include refid="selectSocArticleVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertSocArticle" parameterType="SocArticle" useGeneratedKeys="true" keyProperty="id">
+        insert into soc_article
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="authority != null">authority,</if>
+            <if test="publishTime != null">publish_time,</if>
+            <if test="content != null">content,</if>
+            <if test="imgList != null">img_list,</if>
+            <if test="viewNum != null">view_num,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="isDeleted != null">is_deleted,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="authority != null">#{authority},</if>
+            <if test="publishTime != null">#{publishTime},</if>
+            <if test="content != null">#{content},</if>
+            <if test="imgList != null">#{imgList},</if>
+            <if test="viewNum != null">#{viewNum},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="isDeleted != null">#{isDeleted},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSocArticle" parameterType="SocArticle">
+        update soc_article
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="authority != null">authority = #{authority},</if>
+            <if test="publishTime != null">publish_time = #{publishTime},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="imgList != null">img_list = #{imgList},</if>
+            <if test="viewNum != null">view_num = #{viewNum},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="isDeleted != null">is_deleted = #{isDeleted},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSocArticleById" parameterType="Long">
+        delete from soc_article where id = #{id}
+    </delete>
+
+    <delete id="deleteSocArticleByIds" parameterType="String">
+        delete from soc_article where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

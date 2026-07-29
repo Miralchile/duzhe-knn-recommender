@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.reader.social.mapper.SocFriendMapper">
+    
+    <resultMap type="SocFriend" id="SocFriendResult">
+        <result property="id"    column="id"    />
+        <result property="myId"    column="my_id"    />
+        <result property="friendId"    column="friend_id"    />
+        <result property="notation"    column="notation"    />
+        <result property="sessionId"    column="session_id"    />
+        <result property="lastMessage"    column="last_message"    />
+        <result property="unread"    column="unread"    />
+        <result property="isHidden"    column="is_hidden"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="isDeleted"    column="is_deleted"    />
+    </resultMap>
+
+    <sql id="selectSocFriendVo">
+        select id, my_id, friend_id, notation, session_id, last_message, unread, is_hidden, create_time, update_time, is_deleted from soc_friend
+    </sql>
+
+    <select id="selectSocFriendList" parameterType="SocFriend" resultMap="SocFriendResult">
+        <include refid="selectSocFriendVo"/>
+        <where>  
+            <if test="myId != null "> and my_id = #{myId}</if>
+            <if test="friendId != null "> and friend_id = #{friendId}</if>
+            <if test="notation != null  and notation != ''"> and notation = #{notation}</if>
+            <if test="sessionId != null "> and session_id = #{sessionId}</if>
+            <if test="lastMessage != null  and lastMessage != ''"> and last_message = #{lastMessage}</if>
+            <if test="unread != null "> and unread = #{unread}</if>
+            <if test="isHidden != null "> and is_hidden = #{isHidden}</if>
+            <if test="isDeleted != null "> and is_deleted = #{isDeleted}</if>
+        </where>
+    </select>
+    
+    <select id="selectSocFriendById" parameterType="Long" resultMap="SocFriendResult">
+        <include refid="selectSocFriendVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertSocFriend" parameterType="SocFriend" useGeneratedKeys="true" keyProperty="id">
+        insert into soc_friend
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="myId != null">my_id,</if>
+            <if test="friendId != null">friend_id,</if>
+            <if test="notation != null">notation,</if>
+            <if test="sessionId != null">session_id,</if>
+            <if test="lastMessage != null">last_message,</if>
+            <if test="unread != null">unread,</if>
+            <if test="isHidden != null">is_hidden,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="isDeleted != null">is_deleted,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="myId != null">#{myId},</if>
+            <if test="friendId != null">#{friendId},</if>
+            <if test="notation != null">#{notation},</if>
+            <if test="sessionId != null">#{sessionId},</if>
+            <if test="lastMessage != null">#{lastMessage},</if>
+            <if test="unread != null">#{unread},</if>
+            <if test="isHidden != null">#{isHidden},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="isDeleted != null">#{isDeleted},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSocFriend" parameterType="SocFriend">
+        update soc_friend
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="myId != null">my_id = #{myId},</if>
+            <if test="friendId != null">friend_id = #{friendId},</if>
+            <if test="notation != null">notation = #{notation},</if>
+            <if test="sessionId != null">session_id = #{sessionId},</if>
+            <if test="lastMessage != null">last_message = #{lastMessage},</if>
+            <if test="unread != null">unread = #{unread},</if>
+            <if test="isHidden != null">is_hidden = #{isHidden},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="isDeleted != null">is_deleted = #{isDeleted},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSocFriendById" parameterType="Long">
+        delete from soc_friend where id = #{id}
+    </delete>
+
+    <delete id="deleteSocFriendByIds" parameterType="String">
+        delete from soc_friend where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

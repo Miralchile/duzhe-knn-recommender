@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.duzheStudy.modules.others.mapper.FollowMapper">
+  <resultMap id="BaseResultMap" type="com.duzheStudy.modules.others.domain.Follow">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="follow_user_id" jdbcType="BIGINT" property="followUserId" />
+    <result column="createdBy" jdbcType="TIMESTAMP" property="createdby" />
+    <result column="updatedBy" jdbcType="TIMESTAMP" property="updatedby" />
+  </resultMap>
+
+  <resultMap id="BaseResultWithUserNameMap" type="java.util.HashMap">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="follow_user_id" jdbcType="BIGINT" property="followUserId" />
+    <result column="user_name" jdbcType="VARCHAR" property="userName" />
+    <result column="avatar_url" jdbcType="VARCHAR" property="avatarUrl" />
+    <result column="createdBy" jdbcType="TIMESTAMP" property="createdby" />
+    <result column="updatedBy" jdbcType="TIMESTAMP" property="updatedby" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, user_id, follow_user_id, createdBy, updatedBy
+  </sql>
+
+  <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from follow
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+
+  <select id="selectByUserId" parameterType="java.lang.Long" resultMap="BaseResultWithUserNameMap">
+    select t1.*,t2.user_name,t2.avatar_url
+    from follow t1 left join user t2 on t1.user_id = t2.id
+    where t1.follow_user_id = #{followUserId,jdbcType=BIGINT}
+  </select>
+
+  <select id="selectByUserIdAndFollowUserId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from follow
+    where user_id = #{userId,jdbcType=BIGINT} and follow_user_id = #{followUserId,jdbcType=BIGINT}
+  </select>
+
+  <delete id="deleteByUserIdAndFollowUserId" parameterType="java.lang.Long">
+    delete from follow
+    where user_id = #{userId,jdbcType=BIGINT} and follow_user_id = #{followUserId,jdbcType=BIGINT}
+  </delete>
+
+  <insert id="insert" parameterType="com.duzheStudy.modules.others.domain.Follow">
+    insert into follow (id, user_id, follow_user_id,
+      createdBy, updatedBy)
+    values (#{id,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{followUserId,jdbcType=BIGINT},
+      now(), #{updatedby,jdbcType=TIMESTAMP})
+  </insert>
+
+  <update id="updateById" parameterType="com.duzheStudy.modules.others.domain.Follow">
+    update follow
+    <set>
+      <if test="userId != null">user_id = #{userId,jdbcType=BIGINT},</if>
+      <if test="followUserId != null">follow_user_id = #{followUserId,jdbcType=BIGINT},</if>
+      <if test="createdby != null">createdBy = #{createdby,jdbcType=TIMESTAMP},</if>
+      <if test="updatedby != null">updatedBy = #{updatedby,jdbcType=TIMESTAMP},</if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

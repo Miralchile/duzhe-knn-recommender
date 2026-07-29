@@ -1,0 +1,311 @@
+<template>
+	<view>
+		<view>
+			<xVideo ref="videoPlayer" :showRate='true' src="http://localhost/video/c.m3u8" />
+		</view>
+
+
+		<!-- 简介、评论topbar -->
+		<view class="top-bar-detail">
+			<view>
+				<view @click="topBarCheck(1)" class="detail-text">
+					<text style="font-size: 26rpx;padding: 0rpx 10rpx;width: 80rpx"
+					 :class="{'top-bar-select' : tobarIndex == 1}">视频</text>
+				</view>
+			</view>
+
+			<view style="margin-left: 45rpx;">
+				<view @click="topBarCheck(2)" class="detail-text">
+					<text style="font-size: 26rpx;padding: 0rpx 10rpx;width: 80rpx"
+					:class="{'top-bar-select' : tobarIndex == 2}">评论</text>
+				</view>
+			</view>
+
+			<view style="margin-left: 40rpx;">
+				<view @click="topBarCheck(3)" class="detail-text-2">
+					<text style="font-size: 26rpx;padding: 0rpx 10rpx;width: 130rpx"
+					:class="{'top-bar-select' : tobarIndex == 3}">相关推荐</text>
+				</view>
+			</view>
+
+			<view style="height: 65rpx; width: 270rpx; margin-left: 50rpx;padding: 10rpx;">
+				<u-input fontSize="13px" v-model="danmuForm.text" placeholder="  请输入弹幕"
+					style="background: #EEEEEE;margin-top: 0rpx;height: 55rpx;" @confirm="danmuConfirm">
+				</u-input>
+			</view>
+		</view>
+
+		<!-- 简介页数据 -->
+		<view v-if="tobarIndex == 1">
+			<!-- 头像昵称等 -->
+			<view class="header-box">
+				<view class="img-nick-box">
+					<view class="img-up" @click="clickAvatar()">
+						<u-image style="height: 65rpx;width: 65rpx;"
+							src="http://localhost/image/242dd42a2834349b00ffa33bd9045cc234d3be89.webp"
+							mode="scaleToFill"></u-image>
+					</view>
+					<view class="up-data">
+						<text style="font-size: 27rpx;font-weight: bold;color: #00aaff;">
+							root1
+						</text>
+						<text style="font-size: 20rpx;font-weight: bold;color: #b8b8b8;">
+							0粉丝
+						</text>
+					</view>
+					<view class="about-btn-class">
+						<view @click="clickFollow()" class="about-btn">
+							<text style="font-size: 21rpx;color: #ffffff;margin-left: 2rpx;">+关注</text>
+						</view>
+					</view>
+				</view>
+				<!-- 关注按钮 -->
+
+
+				<!-- 点赞等数据 -->
+				<view class="stat-box">
+
+					<!-- 点赞 -->
+					<view style="margin-top: 20rpx;flex: 1;">
+						<image v-if="!this.isThumb" src="../../static/itemImg/like.png" mode="scaleToFill"
+							@click="thumbUp" style="height: 40rpx;width: 40rpx;"></image>
+						<image v-if="this.isThumb" src="../../static/itemImg/likeed.png" mode="scaleToFill"
+							@click="thumbUp" style="height: 40rpx;width: 40rpx;"></image>
+						<text style="margin-top: 10rpx;color: #8b8b8b;font-size: 20rpx;margin-left: 12rpx;">
+							0
+						</text>
+					</view>
+
+					<!-- 收藏 -->
+					<view style="margin-top: 20rpx;flex: 1;">
+						<image v-if="!this.isCollection" src="../../static/itemImg/shoucang.png" mode="scaleToFill"
+							@click="clickCollect" style="height: 40rpx;width: 40rpx;"></image>
+						<image v-if="this.isCollection" src="../../static/itemImg/shoucanged.png" mode="scaleToFill"
+							@click="clickCollect" style="height: 40rpx;width: 40rpx;"></image>
+						<text style="margin-top: 10rpx;color: #8b8b8b;font-size: 20rpx;">
+							收藏
+						</text>
+					</view>
+
+					<!-- 转发 -->
+					<view style="margin-top: 20rpx;flex: 1;">
+						<image src="../../static/itemImg/share.png" mode="scaleToFill"
+							style="height: 40rpx;width: 40rpx;"></image>
+						<text style="margin-top: 10rpx;color: #8b8b8b;font-size: 20rpx;">
+							转发
+						</text>
+					</view>
+
+				</view>
+			</view>
+
+			<!-- 标题以及下拉详情 -->
+			<view>
+				<view class="title-class-box">
+					<text style="margin-left: 17rpx;width: 100%;font-size: 28rpx;color: #000000;">
+						这是一个视频的标题
+					</text>
+				</view>
+			</view>
+
+			<!-- 播放信息 -->
+			<view class="player-box">
+				<!-- 播放量 -->
+				<view class="bofang">
+					<u-icon name="play-circle" size="12px"></u-icon>
+					<text class="bofang-number">
+						{{views}}
+					</text>
+				</view>
+				<!-- 弹幕数 -->
+				<view class="danmu">
+					<u-icon name="more-circle" size="12px"></u-icon>
+					<text class="danmu-number">
+						{{commentNum}}
+					</text>
+				</view>
+
+				<!-- 发布时间 -->
+				<view class="fabu">
+					<text class="fabu">上传时间：</text>
+					<u--text mode="date" :text="this.createdBy" size="8" type="信息"></u--text>
+				</view>
+
+				<!-- up主昵称 -->
+				<view class="upnick">
+					<text class="upnick">上传者：</text>
+					<text>{{authorName}}</text>
+				</view>
+
+			</view>
+
+			<!-- 简介 -->
+			<view class="introduction" style="margin-top: 20rpx;display: flex;flex-wrap: wrap;">
+				<text style="font-size: 27rpx;color: #7c7c7c;">简介：</text>
+				<u-icon v-if="showIntroduction" name="arrow-up" style="position: absolute;right: 30rpx;"
+					@click="changeShowIntroduction"></u-icon>
+				<u-icon v-if="!showIntroduction" name="arrow-down" style="position: absolute;right: 30rpx;"
+					@click="changeShowIntroduction"></u-icon>
+
+			</view>
+			<view class="introduction">
+				<text v-if="showIntroduction">{{introduction}}</text>
+			</view>
+
+
+			<!-- 分类 -->
+			<view style="margin-top: 20rpx;display: flex;flex-wrap: wrap;">
+				<text style="position: relative;left: 30rpx;top:3rpx;width: 120rpx;font-size: 27rpx;
+				color: #7c7c7c;">分类:</text>
+				<uni-tag :text="category" style="width: 112rpx;text-align: center;margin-right: 33rpx;
+				background-color: #55aaff;color: #ffffff;border-radius: 10px;" />
+				<uni-tag :text="channel" style="width: 112rpx;text-align: center;margin-right: 33rpx;
+				background-color: #55aaff;color: #ffffff;border-radius: 10px;" />
+			</view>
+
+			<!-- 标签 -->
+			<view style="margin-top: 20rpx;display: flex;flex-wrap: wrap;">
+				<text style="position: relative;left: 30rpx;width: 120rpx;font-size: 27rpx;
+				color: #7c7c7c;top:3rpx;">标签:</text>
+				<uni-tag v-for="(item, index) in tagList" :key="index" :text="item" style="width: 112rpx;text-align: center;margin-right: 33rpx;
+				background-color: #dfdfdf;color: #000000;border-radius: 10px;" />
+			</view>
+
+		</view>
+
+		<u-popup :show="isShowCollectionFolder" @close="close">
+			<view class="page" style="height:600rpx;overflow:scroll;">
+				<view class="content">
+					<view class="list" v-if="folderList.length > 0">
+						<view :tag="item.id" class="item" v-for="(item, index) in folderList" :key="index"
+							hover-class="none">
+							<view class="info" @click="selectFolder(item.id)">
+								<view class="photo">
+									<image :src="item.folderCoverImage" mode="aspectFill"></image>
+								</view>
+								<view class="text">
+									<view class="title">{{ item.folderName }}</view>
+									<view class="other">
+										<view class="right view">
+											<text>作品数 {{item.workNum}}</text>
+										</view>
+									</view>
+								</view>
+							</view>
+						</view>
+					</view>
+				</view>
+			</view>
+		</u-popup>
+
+		<!-- 评论数据 -->
+		<view class="reply-box-2" v-if="tobarIndex == 2">
+			<comment  message="111"></comment>
+		</view>
+
+		<view v-if="tobarIndex == 3">
+
+		</view>
+	</view>
+</template>
+
+<script>
+	import xVideo from '@/components/x-video/x-video-player.nvue';
+	import comment from '@/pages/works/videoWorkComment.nvue';
+
+	export default {
+		components: {
+			xVideo,
+			comment
+		},
+
+		data() {
+			return {
+				items: [],
+				loadStatus: [false, false, false, false, false, false, false, false],
+				folderList: [],
+				isCollection: false,
+				isShowCollectionFolder: false,
+				isMeFlag: false,
+				isFollowFlag: false,
+				tobarIndex: 1,
+				id: undefined,
+				videoUrl: undefined,
+				title: undefined,
+				commentNum: 0,
+				thumbNum: 0,
+				currentTime: 0,
+				status: true,
+				duration: 0,
+				danmuList: [],
+				showChat: false,
+				showRelation: false,
+				thumbUpForm: {
+					id: undefined
+				},
+				isThumb: false,
+				isLoaded: false,
+				tagList: [],
+				danmuForm: {
+					text: undefined,
+					id: undefined,
+					time: undefined
+				},
+				historyWork: {
+					_id: undefined,
+					title: undefined,
+					channel: undefined,
+					category: undefined,
+					coverImage: undefined,
+					duration: 0,
+					type: 1
+				},
+				collectionForm: {
+					workId: undefined,
+					folderId: undefined
+				},
+				createdBy: undefined,
+				authorName: undefined,
+				userId: undefined,
+				authorAvatarUrl: undefined,
+				views: 0,
+				introduction: undefined,
+				showIntroduction: false,
+				channel: undefined,
+				category: undefined
+			}
+		},
+		onLoad(option) {},
+		methods: {
+			// 切换tobbar
+			topBarCheck(index) {
+				this.tobarIndex = index
+				if (index == 2) {
+					this.showChat = true;
+				} else if (index == 3) {
+					getRelation(this.category).then((res) => {
+						this.items = res;
+						for (var i = 0; i < this.items.length; i++) {
+							var duration = this.items[i].duration
+							var seconds = Math.floor(duration / 1000);
+							var hours = Math.floor(seconds / 3600); // 计算小时数
+							seconds %= 3600; // 去掉小时数后剩余的部分转换为分钟
+							var minutes = Math.floor(seconds / 60); // 计算分钟数
+							var seconds = seconds % 60; // 去掉分钟数后剩余的秒数
+							hours = ("0" + hours).slice(-2);
+							minutes = ("0" + minutes).slice(-2);
+							seconds = ("0" + seconds).slice(-2);
+							this.items[i].durationString = minutes + ':' + seconds
+							this.items[i].coverImageUrlNew = this.items[i].coverImage + "?t=" + (new Date()
+								.getTime())
+						}
+					});
+					this.showRelation = true;
+				}
+			}
+		}
+	}
+</script>
+
+<style lang="scss" scoped>
+</style>

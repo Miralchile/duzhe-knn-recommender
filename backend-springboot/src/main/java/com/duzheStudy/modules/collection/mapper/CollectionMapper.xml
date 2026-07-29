@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.duzheStudy.modules.collection.mapper.CollectionMapper">
+  <resultMap id="BaseResultMap" type="com.duzheStudy.modules.collection.domain.Collection">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="folder_id" jdbcType="BIGINT" property="folderId" />
+    <result column="work_id" jdbcType="VARCHAR" property="workId" />
+    <result column="createdBy" jdbcType="TIMESTAMP" property="createdby" />
+    <result column="updatedBy" jdbcType="TIMESTAMP" property="updatedby" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, user_id, folder_id, work_id, createdBy, updatedBy
+  </sql>
+
+  <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from collection
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+
+  <select id="selectColletionNumByWorkId" parameterType="java.lang.String" resultType="java.lang.Integer">
+    select count(1)
+    from collection
+    where work_id = #{workId,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByFolderId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from collection
+    where folder_id = #{folderId,jdbcType=BIGINT}
+  </select>
+
+  <select id="selectByUserIdAndWorkId" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from collection
+    where work_id = #{workId,jdbcType=VARCHAR} and user_id = #{userId,jdbcType=BIGINT}
+  </select>
+
+  <delete id="deleteByUserIdAndWorkId">
+    delete from collection
+    where work_id = #{workId,jdbcType=VARCHAR} and user_id = #{userId,jdbcType=BIGINT}
+  </delete>
+
+  <delete id="deleteByFolderId" parameterType="java.lang.Long">
+    delete from collection
+    where folder_id = #{folderId,jdbcType=BIGINT}
+  </delete>
+
+  <insert id="insert" parameterType="com.duzheStudy.modules.collection.domain.Collection">
+    insert into collection (id, user_id, folder_id, work_id,
+      createdBy, updatedBy)
+    values (#{id,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{folderId,jdbcType=BIGINT},
+      #{workId,jdbcType=VARCHAR},  now(), #{updatedby,jdbcType=TIMESTAMP})
+  </insert>
+
+  <update id="updateById" parameterType="com.duzheStudy.modules.collection.domain.Collection">
+    update collection
+    <set>
+      <if test="userId != null">user_id = #{userId,jdbcType=BIGINT},</if>
+      <if test="folderId != null">folder_id = #{folderId,jdbcType=BIGINT},</if>
+      <if test="workId != null">work_id = #{workId,jdbcType=VARCHAR},</if>
+      <if test="createdby != null">createdBy = #{createdby,jdbcType=TIMESTAMP},</if>
+      <if test="updatedby != null">updatedBy = #{updatedby,jdbcType=TIMESTAMP},</if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+</mapper>

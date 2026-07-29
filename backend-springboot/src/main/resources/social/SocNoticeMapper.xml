@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.reader.social.mapper.SocNoticeMapper">
+    
+    <resultMap type="SocNotice" id="SocNoticeResult">
+        <result property="id"    column="id"    />
+        <result property="senderId"    column="sender_id"    />
+        <result property="receiverId"    column="receiver_id"    />
+        <result property="type"    column="type"    />
+        <result property="information"    column="information"    />
+        <result property="isRead"    column="is_read"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="isDeleted"    column="is_deleted"    />
+    </resultMap>
+
+    <sql id="selectSocNoticeVo">
+        select id, sender_id, receiver_id, type, information, is_read, create_time, update_time, is_deleted from soc_notice
+    </sql>
+
+    <select id="selectSocNoticeList" parameterType="SocNotice" resultMap="SocNoticeResult">
+        <include refid="selectSocNoticeVo"/>
+        <where>  
+            <if test="senderId != null "> and sender_id = #{senderId}</if>
+            <if test="receiverId != null "> and receiver_id = #{receiverId}</if>
+            <if test="type != null  and type != ''"> and type = #{type}</if>
+            <if test="information != null  and information != ''"> and information = #{information}</if>
+            <if test="isRead != null "> and is_read = #{isRead}</if>
+            <if test="isDeleted != null "> and is_deleted = #{isDeleted}</if>
+        </where>
+    </select>
+    
+    <select id="selectSocNoticeById" parameterType="Long" resultMap="SocNoticeResult">
+        <include refid="selectSocNoticeVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertSocNotice" parameterType="SocNotice" useGeneratedKeys="true" keyProperty="id">
+        insert into soc_notice
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="senderId != null">sender_id,</if>
+            <if test="receiverId != null">receiver_id,</if>
+            <if test="type != null">type,</if>
+            <if test="information != null">information,</if>
+            <if test="isRead != null">is_read,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="isDeleted != null">is_deleted,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="senderId != null">#{senderId},</if>
+            <if test="receiverId != null">#{receiverId},</if>
+            <if test="type != null">#{type},</if>
+            <if test="information != null">#{information},</if>
+            <if test="isRead != null">#{isRead},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="isDeleted != null">#{isDeleted},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSocNotice" parameterType="SocNotice">
+        update soc_notice
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="senderId != null">sender_id = #{senderId},</if>
+            <if test="receiverId != null">receiver_id = #{receiverId},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="information != null">information = #{information},</if>
+            <if test="isRead != null">is_read = #{isRead},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="isDeleted != null">is_deleted = #{isDeleted},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSocNoticeById" parameterType="Long">
+        delete from soc_notice where id = #{id}
+    </delete>
+
+    <delete id="deleteSocNoticeByIds" parameterType="String">
+        delete from soc_notice where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,230 @@
+page{
+		.cate-section{
+			position:relative;
+			z-index:5;
+			border-radius:16upx 16upx 0 0;
+			margin-top:-20upx;
+		}
+		.carousel-section{
+			padding: 0;
+			.titleNview-placing {
+				padding-top: 0;
+				height: 0;
+			}
+			.carousel{
+				.carousel-item{
+					padding: 0;
+				}
+			}
+			.swiper-dots{
+				left:45upx;
+				bottom:40upx;
+			}
+		}
+	}
+
+.num {
+	width: 36upx;
+	height: 36upx;
+	border-radius: 50px;
+	font-size: 24upx;
+	color: #fff;
+	text-align: center;
+	line-height: 36upx;
+}
+
+.sign {
+	position: absolute;
+	top: 0;
+	left: 50%;
+	line-height: 36upx;
+	font-size: 12upx;
+	color: #fff;
+	transform: translateX(-50%);
+}
+
+.input {
+	float: left;
+	height: 30px;
+	margin-top: 10px;
+	width: 400rpx;
+	border-radius: 30px;
+	background-color: #f6f6f6;
+}
+
+.avatar {
+	border-radius: 50%;
+	margin: 40rpx 20rpx 0rpx 20rpx;
+	width: 90rpx;
+	height: 90rpx;
+}
+
+.nav {
+	position: sticky;
+	top: 44px;
+	top: 0;
+	z-index: 3;
+}
+
+.right-icon {
+	font-size: 22px;
+}
+
+.simple-news-title {
+	width: 100%;
+	height: 45px;
+	background-color: #FFFFFF;
+	display: flex;
+	align-items: center;
+}
+
+.simple-news-title .news-title {
+	width: 44px;
+	font-size: 22px;
+	color: #333333;
+	margin: 0 10px;
+}
+
+.simple-news-title .news-content {
+	flex: 1;
+	display: flex;
+	align-items: center;
+}
+
+.simple-news-title .news-content .news-type {
+	width: 40px;
+	color: #FF0000;
+	border: 1px solid #ff0000;
+	border-radius: 8px;
+}
+
+.simple-news-title .news-content .news-msg {
+	width: 440upx;
+	margin-left: 5px;
+	color: #8b8b8b;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.simple-news-title .more {
+	font-size: 20px;
+	margin-right: 10px;
+}
+
+/* 新闻内容模块 */
+
+.news-box {
+	width: 100%;
+	display: flex;
+	flex-wrap: wrap;
+	background-color: #FFFFFF;
+}
+
+.news-box .news {
+	width: 350upx;
+	margin: 10upx 10upx;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.news-box .news image {
+	width: 350upx;
+	height: 200upx;
+	border-radius: 15px;
+}
+
+.news-box .news .news-desc {
+	width: 330upx;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* 电影标题模块 */
+.module-title {
+	width: 100%;
+	height: 45px;
+	display: flex;
+	align-items: center;
+	background-color: #FFFFFF;
+	margin-top: 10upx;
+}
+
+.module-title .title-ico {
+	font-size: 24px;
+	margin-left: 10px;
+}
+
+.module-title .title-name {
+	flex: 1;
+	font-size: 22px;
+	margin-left: 3px;
+	color: #333333;
+}
+
+.module-title .title-more {
+	font-size: 20px;
+	margin-right: 10px;
+}
+
+.module-list-one {
+	width: 100%;
+	display: flex;
+	background-color: #FFFFFF;
+}
+
+.module-list-one .list-one {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	margin: 10upx 10upx;
+}
+
+.module-list-one .list-one image {
+	width: 730upx;
+	height: 200px;
+	border-radius: 15px;
+}
+
+.module-list-one .list-one .list-one-name {
+	width: 720upx;
+	font-size: 20px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	margin-top: 10px;
+	margin-left: 10px;
+}
+
+.module-list-other {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	background-color: #FFFFFF;
+}
+
+.list-other {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	margin: 10upx 10upx;
+}
+
+.list-other image {
+	width: 230upx;
+	height: 320upx;
+	border-radius: 10px;
+	margin-bottom: 10upx;
+}
+
+.list-other .list-other-name {
+	width: 210upx;
+	font-size: 16px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	margin-bottom: 5upx;
+	margin-left: 5upx;
+}

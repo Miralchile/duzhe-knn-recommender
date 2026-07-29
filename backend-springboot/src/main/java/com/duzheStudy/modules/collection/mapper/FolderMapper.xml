@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.duzheStudy.modules.collection.mapper.FolderMapper">
+  <resultMap id="BaseResultMap" type="com.duzheStudy.modules.collection.domain.Folder">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="folder_name" jdbcType="VARCHAR" property="folderName" />
+    <result column="folder_cover_image" jdbcType="VARCHAR" property="folderCoverImage" />
+    <result column="createdBy" jdbcType="TIMESTAMP" property="createdby" />
+    <result column="updatedBy" jdbcType="TIMESTAMP" property="updatedby" />
+  </resultMap>
+
+  <resultMap id="FolderWithWorkNumResultMap" type="java.util.HashMap">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="folder_name" jdbcType="VARCHAR" property="folderName" />
+    <result column="folder_cover_image" jdbcType="VARCHAR" property="folderCoverImage" />
+    <result column="createdBy" jdbcType="TIMESTAMP" property="createdby" />
+    <result column="updatedBy" jdbcType="TIMESTAMP" property="updatedby" />
+    <result column="work_num" jdbcType="INTEGER" property="workNum" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, user_id, folder_name, folder_cover_image, createdBy, updatedBy
+  </sql>
+
+  <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from folder
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+
+  <select id="selectByUserId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from folder
+    where user_id = #{userId,jdbcType=BIGINT}
+  </select>
+
+  <select id="selectByUserIdWithWorkNum" parameterType="java.lang.Long" resultMap="FolderWithWorkNumResultMap">
+    select count(1) as work_num,t1.* from folder as t1 left join collection as t2
+    on t1.id = t2.folder_id where t1.user_id = #{userId,jdbcType=BIGINT} group by t1.id
+  </select>
+
+  <delete id="deleteById" parameterType="java.lang.Long">
+    delete from folder
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+
+  <insert id="insert" parameterType="com.duzheStudy.modules.collection.domain.Folder">
+    insert into folder (id, user_id, folder_name, 
+      folder_cover_image, createdBy, updatedBy
+      )
+    values (#{id,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{folderName,jdbcType=VARCHAR}, 
+      #{folderCoverImage,jdbcType=VARCHAR}, now(), #{updatedby,jdbcType=TIMESTAMP}
+      )
+  </insert>
+
+  <update id="updateById" parameterType="com.duzheStudy.modules.collection.domain.Folder">
+    update folder
+    <set>
+      <if test="userId != null">user_id = #{userId,jdbcType=BIGINT},</if>
+      <if test="folderName != null">folder_name = #{folderName,jdbcType=VARCHAR},</if>
+      <if test="folderCoverImage != null">folder_cover_image = #{folderCoverImage,jdbcType=VARCHAR},</if>
+      <if test="createdby != null">createdBy = #{createdby,jdbcType=TIMESTAMP},</if>
+      <if test="updatedby != null">updatedBy = #{updatedby,jdbcType=TIMESTAMP},</if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

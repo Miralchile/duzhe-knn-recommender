@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly>
+    <!--
+        必须写，否则打包时会有 assembly ID must be present and non-empty 错误
+        这个名字最终会追加到打包的名字的末尾，如项目的名字为 hangge-test-0.0.1-SNAPSHOT,
+        则最终生成的包名为 hangge-test-0.0.1-SNAPSHOT-bin.tar.gz
+     -->
+    <id>bin</id>
+    <formats>
+        <!-- 打包成目录,这里其实有很多选择,如jar,war,zip,tar等,我们这里选择先打成目录,到真正要用的时候可以打包成zip-->
+        <format>dir</format>
+    </formats>
+
+    <includeBaseDirectory>false</includeBaseDirectory>
+
+    <fileSets>
+        <fileSet>
+            <directory>${project.build.directory}</directory>
+            <outputDirectory>./</outputDirectory>
+            <includes>
+                <include>README*</include>
+                <include>LICENSE*</include>
+                <include>NOTICE*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>${project.build.directory}</directory>
+            <outputDirectory>./</outputDirectory>
+            <includes>
+                <include>*.jar</include>
+            </includes>
+        </fileSet>
+        <!-- 配置文件和静态文件,直接复制-->
+        <fileSet>
+            <directory>src/main/resources/</directory>
+            <outputDirectory>./resources</outputDirectory>
+        </fileSet>
+    </fileSets>
+
+    <dependencySets>
+        <!-- 打包依赖文件,就是maven里面那一堆jar包-->
+        <dependencySet>
+            <useProjectArtifact>true</useProjectArtifact>
+            <outputDirectory>./lib</outputDirectory>
+            <scope>runtime</scope>
+        </dependencySet>
+    </dependencySets>
+</assembly>

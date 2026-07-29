@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+##set ($holdKeyword=["name","desc","level","type","status","language","interval","update","delete","select"])
+<mapper namespace="${packageName}.mapper.${ClassName}Mapper">
+    <!-- ********************************* -->
+    <!-- ************* 增加 ************** -->
+    <!-- ********************************* -->
+    <!-- 新增${functionName} -->
+    <insert id="insert${ClassName}" parameterType="${packageName}.domain.${ClassName}"#if($pkColumn.increment)#end>
+        insert into ${tableName}
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+#foreach($column in $columns)
+            <if test="$column.javaField != null #if($column.javaType == 'String' ) and $column.javaField != ''#end">$column.columnName,</if>
+#end
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+#foreach($column in $columns)
+            <if test="$column.javaField != null #if($column.javaType == 'String' ) and $column.javaField != ''#end">#{$column.javaField},</if>
+#end
+         </trim>
+    </insert>
+
+    <!-- ********************************* -->
+    <!-- ************* 删除 ************** -->
+    <!-- ********************************* -->
+    <!-- 按id删除${functionName} -->
+    <delete id="delete${ClassName}ById" parameterType="java.lang.${pkColumn.javaType}">
+        delete from ${tableName} where ${pkColumn.columnName} = #{${pkColumn.javaField}}
+    </delete>
+
+    <!-- 批量删除${functionName} -->
+    <delete id="delete${ClassName}ByIds" parameterType="java.lang.${pkColumn.javaType}">
+        delete from ${tableName} where ${pkColumn.columnName} in
+        <foreach item="${pkColumn.javaField}" collection="array" open="(" separator="," close=")">
+            #{${pkColumn.javaField}}
+        </foreach>
+    </delete>
+
+    <!-- ********************************* -->
+    <!-- ************* 修改 ************** -->
+    <!-- ********************************* -->
+    <!-- 修改${functionName} -->
+    <update id="update${ClassName}" parameterType="${packageName}.domain.${ClassName}">
+        update ${tableName}
+        <trim prefix="SET" suffixOverrides=",">
+#foreach($column in $columns)
+#if($column.columnName != $pkColumn.columnName)
+            <if test="$column.javaField != null #if($column.javaType == 'String' ) and $column.javaField != ''#end">$column.columnName = #{$column.javaField},</if>
+#end
+#end
+        </trim>
+        where ${pkColumn.columnName} = #{${pkColumn.javaField}}
+    </update>
+
+    <!-- ********************************* -->
+    <!-- ************* 查询 ************** -->
+    <!-- ********************************* -->
+#foreach($column in $columns)
+#set($javaField=$column.javaField)
+#set($columnName=$column.columnName)
+#if($column.isRepeat)
+    <!-- 校验${column.columnComment}是否唯一 -->
+    <select id="check${ClassName}$stringUtils.convertToCamelCase(${column.ColumnName})Unique"  parameterType="java.lang.${pkColumn.javaType}" resultType="java.lang.Integer">
+        select count(0) from ${tableName}
+        <where>
+            <if test="$pkColumn.javaField != null #if($pkColumn.javaType == 'String' ) and $pkColumn.javaField.trim() != ''#end">and ${pkColumn.columnName} != #{${pkColumn.javaField}}</if>
+            and ${columnName} = #{${javaField}}
+        </where>
+    </select>
+#end
+#end
+
+
+    <!-- 按ID查询${functionName}详细信息 -->
+    <select id="find${ClassName}ById" parameterType="java.lang.${pkColumn.javaType}" resultType="${packageName}.domain.${ClassName}">
+        select#foreach($column in $columns) $column.columnName#if($velocityCount != $columns.size()),#end#end from ${tableName}
+        where ${pkColumn.columnName} = #{${pkColumn.javaField}}
+    </select>
+
+    <!-- 查询${functionName}总数 -->
+    <select id="query${ClassName}Total" parameterType="com.tokenview.common.utils.page.Pager" resultType="java.lang.Integer">
+        select
+        count(1)
+        from ${tableName}
+        <where>
+#foreach($column in $columns)
+#set($queryType=$column.queryType)
+#set($javaField=$column.javaField)
+#set($javaType=$column.javaType)
+#set($columnName=$column.columnName)
+#set($AttrName=$column.javaField.substring(0,1).toUpperCase() + ${column.javaField.substring(1)})
+#if($column.query)
+#if($column.queryType == "EQ")
+            <if test="entity.$javaField != null #if($javaType == 'String' ) and entity.$javaField.trim() != ''#end"> and $columnName = #{entity.$javaField}</if>
+#elseif($queryType == "NE")
+            <if test="entity.$javaField != null #if($javaType == 'String' ) and entity.$javaField.trim() != ''#end"> and $columnName != #{entity.$javaField}</if>
+#elseif($queryType == "GT")
+            <if test="entity.$javaField != null #if($javaType == 'String' ) and entity.$javaField.trim() != ''#end"> and $columnName &gt; #{entity.$javaField}</if>
+#elseif($queryType == "GTE")
+            <if test="entity.$javaField != null #if($javaType == 'String' ) and entity.$javaField.trim() != ''#end"> and $columnName &gt;= #{entity.$javaField}</if>
+#elseif($queryType == "LT")
+            <if test="entity.$javaField != null #if($javaType == 'String' ) and entity.$javaField.trim() != ''#end"> and $columnName &lt; #{entity.$javaField}</if>
+#elseif($queryType == "LTE")
+            <if test="entity.$javaField != null #if($javaType == 'String' ) and entity.$javaField.trim() != ''#end"> and $columnName &lt;= #{entity.$javaField}</if>
+#elseif($queryType == "LIKE")
+            <if test="entity.$javaField != null #if($javaType == 'String' ) and entity.$javaField.trim() != ''#end"> and $columnName like concat('%', #{entity.$javaField}, '%')</if>
+#elseif($queryType == "BETWEEN")
+            <if test="entity.params.begin$AttrName != null and entity.params.begin$AttrName != '' and entity.params.end$AttrName != null and entity.params.end$AttrName != ''"> and $columnName between #{entity.params.begin$AttrName} and #{entity.params.end$AttrName}</if>
+#end
+#end
+#end
+        </where>
+    </select>
+
+#if($table.crud)
+    <!-- 查询${functionName}列表 -->
+    <select id="select${ClassName}Pager" parameterType="com.tokenview.common.utils.page.Pager" resultType="${packageName}.domain.${ClassName}">
+        select#foreach($column in $columns) $column.columnName#if($velocityCount != $columns.size()),#end#end from ${tableName}
+        <where>
+#foreach($column in $columns)
+#set($queryType=$column.queryType)
+#set($javaField=$column.javaField)
+#set($javaType=$column.javaType)
+#set($columnName=$column.columnName)
+#set($AttrName=$column.javaField.substring(0,1).toUpperCase() + ${column.javaField.substring(1)})
+#if($column.query)
+#if($column.queryType == "EQ")
+            <if test="entity.$javaField != null #if($javaType == 'String' ) and entity.$javaField.trim() != ''#end"> and $columnName = #{entity.$javaField}</if>
+#elseif($queryType == "NE")
+            <if test="entity.$javaField != null #if($javaType == 'String' ) and entity.$javaField.trim() != ''#end"> and $columnName != #{entity.$javaField}</if>
+#elseif($queryType == "GT")
+            <if test="entity.$javaField != null #if($javaType == 'String' ) and entity.$javaField.trim() != ''#end"> and $columnName &gt; #{entity.$javaField}</if>
+#elseif($queryType == "GTE")
+            <if test="entity.$javaField != null #if($javaType == 'String' ) and entity.$javaField.trim() != ''#end"> and $columnName &gt;= #{entity.$javaField}</if>
+#elseif($queryType == "LT")
+            <if test="entity.$javaField != null #if($javaType == 'String' ) and entity.$javaField.trim() != ''#end"> and $columnName &lt; #{entity.$javaField}</if>
+#elseif($queryType == "LTE")
+            <if test="entity.$javaField != null #if($javaType == 'String' ) and entity.$javaField.trim() != ''#end"> and $columnName &lt;= #{entity.$javaField}</if>
+#elseif($queryType == "LIKE")
+            <if test="entity.$javaField != null #if($javaType == 'String' ) and entity.$javaField.trim() != ''#end"> and $columnName like concat('%', #{entity.$javaField}, '%')</if>
+#elseif($queryType == "BETWEEN")
+            <if test="entity.params.begin$AttrName != null and entity.params.begin$AttrName != '' and entity.params.end$AttrName != null and entity.params.end$AttrName != ''"> and $columnName between #{entity.params.begin$AttrName} and #{entity.params.end$AttrName}</if>
+#end
+#end
+#end
+        </where>
+        ${orderByClause}
+        ${limitByClause}
+    </select>
+#elseif($table.tree)
+    <!-- 查询${functionName}所有列表 -->
+    <select id="select${ClassName}List" parameterType="${packageName}.domain.${ClassName}" resultType="${packageName}.domain.${ClassName}">
+        select#foreach($column in $columns) $column.columnName#if($velocityCount != $columns.size()),#end#end from ${tableName}
+        <where>
+#foreach($column in $columns)
+#set($queryType=$column.queryType)
+#set($javaField=$column.javaField)
+#set($javaType=$column.javaType)
+#set($columnName=$column.columnName)
+#set($AttrName=$column.javaField.substring(0,1).toUpperCase() + ${column.javaField.substring(1)})
+#if($column.query)
+#if($column.queryType == "EQ")
+            <if test="$javaField != null #if($javaType == 'String' ) and $javaField.trim() != ''#end"> and $columnName = #{$javaField}</if>
+#elseif($queryType == "NE")
+            <if test="$javaField != null #if($javaType == 'String' ) and $javaField.trim() != ''#end"> and $columnName != #{$javaField}</if>
+#elseif($queryType == "GT")
+            <if test="$javaField != null #if($javaType == 'String' ) and $javaField.trim() != ''#end"> and $columnName &gt; #{$javaField}</if>
+#elseif($queryType == "GTE")
+            <if test="$javaField != null #if($javaType == 'String' ) and $javaField.trim() != ''#end"> and $columnName &gt;= #{$javaField}</if>
+#elseif($queryType == "LT")
+            <if test="$javaField != null #if($javaType == 'String' ) and $javaField.trim() != ''#end"> and $columnName &lt; #{$javaField}</if>
+#elseif($queryType == "LTE")
+            <if test="$javaField != null #if($javaType == 'String' ) and $javaField.trim() != ''#end"> and $columnName &lt;= #{$javaField}</if>
+#elseif($queryType == "LIKE")
+            <if test="$javaField != null #if($javaType == 'String' ) and $javaField.trim() != ''#end"> and $columnName like concat('%', #{$javaField}, '%')</if>
+#elseif($queryType == "BETWEEN")
+            <if test="params.begin$AttrName != null and params.begin$AttrName != '' and params.end$AttrName != null and params.end$AttrName != ''"> and $columnName between #{params.begin$AttrName} and #{params.end$AttrName}</if>
+#end
+#end
+#end
+        </where>
+    </select>
+#end
+
+    <!-- 查询需要导出的${functionName}列表 -->
+    <select id="export${ClassName}List" parameterType="${packageName}.domain.${ClassName}" resultType="${packageName}.domain.${ClassName}">
+        select#foreach($column in $columns) $column.columnName#if($velocityCount != $columns.size()),#end#end from ${tableName}
+        <where>
+#foreach($column in $columns)
+#set($queryType=$column.queryType)
+#set($javaField=$column.javaField)
+#set($javaType=$column.javaType)
+#set($columnName=$column.columnName)
+#set($AttrName=$column.javaField.substring(0,1).toUpperCase() + ${column.javaField.substring(1)})
+#if($column.query)
+#if($column.queryType == "EQ")
+            <if test="$javaField != null #if($javaType == 'String' ) and $javaField.trim() != ''#end"> and $columnName = #{$javaField}</if>
+#elseif($queryType == "NE")
+            <if test="$javaField != null #if($javaType == 'String' ) and $javaField.trim() != ''#end"> and $columnName != #{$javaField}</if>
+#elseif($queryType == "GT")
+            <if test="$javaField != null #if($javaType == 'String' ) and $javaField.trim() != ''#end"> and $columnName &gt; #{$javaField}</if>
+#elseif($queryType == "GTE")
+            <if test="$javaField != null #if($javaType == 'String' ) and $javaField.trim() != ''#end"> and $columnName &gt;= #{$javaField}</if>
+#elseif($queryType == "LT")
+            <if test="$javaField != null #if($javaType == 'String' ) and $javaField.trim() != ''#end"> and $columnName &lt; #{$javaField}</if>
+#elseif($queryType == "LTE")
+            <if test="$javaField != null #if($javaType == 'String' ) and $javaField.trim() != ''#end"> and $columnName &lt;= #{$javaField}</if>
+#elseif($queryType == "LIKE")
+            <if test="$javaField != null #if($javaType == 'String' ) and $javaField.trim() != ''#end"> and $columnName like concat('%', #{$javaField}, '%')</if>
+#elseif($queryType == "BETWEEN")
+            <if test="params.begin$AttrName != null and params.begin$AttrName != '' and params.end$AttrName != null and params.end$AttrName != ''"> and $columnName between #{params.begin$AttrName} and #{params.end$AttrName}</if>
+#end
+#end
+#end
+        </where>
+    </select>
+</mapper>
