@@ -18,7 +18,7 @@ This project is built on top of two Gitee open-source projects:
 - Backend base: https://gitee.com/song-yvqi/duzhe-study.git
 - Frontend base: https://gitee.com/song-yvqi/uniapp-dz.git
 
-The original projects provide the baseline reader/video/community application structure. My undergraduate project adds the recommendation-system layer and integrates it into the existing backend and frontend workflow. See `MODIFICATIONS.md` for the project-specific changes.
+The original projects provide the baseline reader/video/community application structure. My undergraduate project adds the recommendation-system layer and integrates it into the existing backend and frontend workflow. See `MODIFICATIONS.md` for the project-specific changes, and `UPSTREAM_DIFF_MAP.md` for the concrete file locations changed relative to the upstream projects.
 
 ## Recommendation workflow
 
